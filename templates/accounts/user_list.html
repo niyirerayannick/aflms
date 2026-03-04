@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Users | AFLMS{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-900">Users</h2>
+            <p class="text-sm text-slate-500">Manage system users and roles.</p>
+        </div>
+        <a href="{% url 'accounts:user-create' %}" class="rounded-lg bg-blue-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-900">Create User</a>
+    </div>
+
+    <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-600">Name</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-600">Email</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-600">Role</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-600">Status</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-600">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+                {% for user in users %}
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-4 py-3 font-medium text-slate-900">{{ user.full_name }}</td>
+                        <td class="px-4 py-3 text-slate-700">{{ user.email }}</td>
+                        <td class="px-4 py-3">
+                            <span class="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800">{{ user.role|title }}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <label class="inline-flex items-center gap-2">
+                                <input type="checkbox" {% if user.is_active %}checked{% endif %} disabled class="h-4 w-4 rounded border-slate-300 text-green-600">
+                                {% if user.is_active %}
+                                    <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-800">Active</span>
+                                {% else %}
+                                    <span class="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-800">Inactive</span>
+                                {% endif %}
+                            </label>
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-2">
+                                <a href="{% url 'accounts:user-update' user.pk %}" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100">Edit</a>
+                                {% if request.user.role == 'superadmin' %}
+                                    <button type="button" data-confirm-open="delete-user-{{ user.pk }}" class="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">Delete</button>
+                                    <div id="delete-user-{{ user.pk }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+                                        <div class="w-full max-w-md rounded-xl bg-white shadow-xl">
+                                            <div class="p-6">
+                                                <h3 class="text-lg font-semibold text-slate-900">Delete {{ user.full_name }}?</h3>
+                                                <p class="mt-2 text-sm text-slate-600">This action cannot be undone.</p>
+                                            </div>
+                                            <div class="px-6 pb-6 flex items-center justify-end gap-3">
+                                                <button type="button" data-confirm-close="delete-user-{{ user.pk }}" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100">Cancel</button>
+                                                <form method="post" action="{% url 'accounts:user-delete' user.pk %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Confirm</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-slate-500">No users found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include "components/pagination.html" %}
+</div>
+{% endblock %}

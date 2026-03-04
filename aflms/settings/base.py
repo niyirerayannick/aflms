@@ -41,14 +41,17 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "theme",
     "accounts",
-    "vehicles",
-    "drivers",
-    "tracking",
-    "fuel",
-    "clients",
-    "logistics",
-    "reports",
-    "notifications",
+    "transport.core.apps.CoreConfig",
+    "transport.vehicles.apps.VehiclesConfig",
+    "transport.drivers.apps.DriversConfig",
+    "transport.customers.apps.CustomersConfig",
+    "transport.routes.apps.RoutesConfig",
+    "transport.trips.apps.TripsConfig",
+    "transport.fuel.apps.FuelConfig",
+    "transport.maintenance.apps.MaintenanceConfig",
+    "transport.finance.apps.FinanceConfig",
+    "transport.analytics.apps.AnalyticsConfig",
+    "transport.reports.apps.ReportsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -139,8 +142,11 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_LOGIN_METHODS = {"username", "email"}
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 LOGIN_REDIRECT_URL = "/"
 
 EMAIL_BACKEND = config(
@@ -194,3 +200,27 @@ LOGGING = {
         "channels": {"handlers": ["console"], "level": "INFO", "propagate": False},
     },
 }
+
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "'unsafe-inline'",
+    "https://cdn.tailwindcss.com",
+    "https://cdn.jsdelivr.net",
+)
+CSP_STYLE_SRC = (
+    "'self'",
+    "'unsafe-inline'",
+    "https://fonts.googleapis.com",
+)
+CSP_FONT_SRC = (
+    "'self'",
+    "https://fonts.gstatic.com",
+    "data:",
+)
+CSP_IMG_SRC = (
+    "'self'",
+    "data:",
+    "blob:",
+    "https:",
+)

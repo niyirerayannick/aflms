@@ -1,0 +1,24 @@
+<div class="h-full flex flex-col">
+    <div class="h-16 px-6 flex items-center border-b border-slate-200">
+        <a href="{% url 'accounts:dashboard' %}" class="text-xl font-bold text-blue-800">ATMS</a>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-sm">
+        {% with path=request.path role=request.user.role %}
+            {% if role == 'superadmin' or role == 'admin' %}
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/dashboard/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Dashboard</a>
+                <a href="{% url 'accounts:user-list' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/users/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Users</a>
+                <a href="/transport/analytics/dashboard/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Transport Management</a>
+            {% elif role == 'manager' %}
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/dashboard/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Dashboard</a>
+                <a href="/transport/analytics/dashboard/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Transport Management</a>
+            {% elif role == 'driver' %}
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/dashboard/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Dashboard</a>
+                <a href="/transport/trips/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/trips/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">My Trips</a>
+            {% elif role == 'client' %}
+                <a href="{% url 'accounts:dashboard' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/dashboard/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Dashboard</a>
+                <a href="/transport/trips/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/trips/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">My Orders</a>
+            {% endif %}
+        {% endwith %}
+    </nav>
+</div>

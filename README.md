@@ -1,6 +1,6 @@
-# AFLMS - Fleet & Logistics Management System
+# ATMS - Afrilott Transport Management System
 
-Production-ready Django 5 project scaffold for fleet operations, logistics workflows, live tracking, and reporting.
+Production-ready Django 5 project scaffold for transport operations, fuel/maintenance intelligence, and profitability reporting.
 
 ## Stack
 
@@ -28,7 +28,15 @@ docker compose up --build
 docker compose exec web python manage.py migrate
 docker compose exec web python manage.py createsuperuser
 
-4. Visit:
+4. Seed demo data for end-to-end testing:
+
+docker compose exec web python manage.py seed_demo_data --reset
+
+For local virtualenv usage:
+
+.venv\Scripts\python.exe manage.py seed_demo_data --reset
+
+5. Visit:
 
 - App: http://localhost:8000
 - Admin: http://localhost:8000/admin/

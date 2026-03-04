@@ -12,6 +12,15 @@ class LoginForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={"autofocus": True}))
     password = forms.CharField(widget=forms.PasswordInput)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update(
+                {
+                    "class": "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-600"
+                }
+            )
+
 
 class UserCreationForm(forms.ModelForm):
     password1 = forms.CharField(widget=forms.PasswordInput)
@@ -45,6 +54,15 @@ class UserCreationForm(forms.ModelForm):
             user.save()
         return user
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update(
+                {
+                    "class": "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-600"
+                }
+            )
+
 
 class UserUpdateForm(forms.ModelForm):
     class Meta:
@@ -58,6 +76,15 @@ class UserUpdateForm(forms.ModelForm):
             raise ValidationError("A user with this email already exists.")
         return email
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update(
+                {
+                    "class": "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-600"
+                }
+            )
+
 
 class PasswordChangeForm(DjangoPasswordChangeForm):
     old_password = forms.CharField(widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}))
@@ -69,3 +96,12 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ("address", "national_id", "emergency_contact", "license_number")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update(
+                {
+                    "class": "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-600"
+                }
+            )

@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | ATMS{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Transport Management Dashboard</h1>
+        <p class="mt-2 text-sm text-gray-600">Overview of fleet operations, trips, and key metrics</p>
+    </div>
+
+    <!-- Key Metrics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        
+        <!-- Active Trips -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Active Trips</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ metrics.active_trips }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Vehicles -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Available Vehicles</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ metrics.available_vehicles }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fleet Utilization -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Fleet Utilization</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ metrics.fleet_utilization_percent }}%</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Revenue -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Monthly Revenue</dt>
+                            <dd class="text-lg font-medium text-gray-900">${{ metrics.monthly_revenue|floatformat:2 }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Recent Trips -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Recent Trips</h3>
+            </div>
+            <div class="overflow-hidden">
+                {% if recent_trips %}
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trip #</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for trip in recent_trips %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    <a href="{% url 'analytics:trip-detail' trip.pk %}" class="text-blue-600 hover:text-blue-900">
+                                        {{ trip.order_number }}
+                                    </a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ trip.customer.name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full 
+                                        {% if trip.status == 'DELIVERED' %}bg-green-100 text-green-800
+                                        {% elif trip.status == 'IN_TRANSIT' %}bg-blue-100 text-blue-800
+                                        {% elif trip.status == 'ASSIGNED' %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ trip.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="p-6 text-center text-gray-500">
+                        No recent trips found
+                    </div>
+                {% endif %}
+            </div>
+            <div class="px-6 py-3 border-t border-gray-200 bg-gray-50">
+                <a href="{% url 'analytics:trips-list' %}" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                    View all trips →
+                </a>
+            </div>
+        </div>
+
+        <!-- Maintenance Alerts -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Maintenance Required</h3>
+            </div>
+            <div class="overflow-hidden">
+                {% if vehicles_needing_maintenance %}
+                    <div class="divide-y divide-gray-200">
+                        {% for vehicle in vehicles_needing_maintenance %}
+                        <div class="px-6 py-4 flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ vehicle.plate_number }}</p>
+                                <p class="text-sm text-gray-500">{{ vehicle.vehicle_type }}</p>
+                            </div>
+                            <div class="text-sm text-red-600">
+                                <span class="inline-flex px-2 py-1 bg-red-100 rounded-full">
+                                    Maintenance Due
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-6 text-center text-gray-500">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="mt-2">All vehicles are up to date</p>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="px-6 py-3 border-t border-gray-200 bg-gray-50">
+                <a href="{% url 'analytics:vehicles-list' %}" class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                    View all vehicles →
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Financial Overview -->
+    <div class="mt-8 bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Financial Overview - Current Month</h3>
+        </div>
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="text-center">
+                    <p class="text-sm text-gray-500">Revenue</p>
+                    <p class="text-2xl font-bold text-green-600">${{ metrics.monthly_revenue|floatformat:2 }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-500">Fuel Costs</p>
+                    <p class="text-2xl font-bold text-red-600">${{ metrics.monthly_fuel_cost|floatformat:2 }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-500">Maintenance</p>
+                    <p class="text-2xl font-bold text-orange-600">${{ metrics.monthly_maintenance_cost|floatformat:2 }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-500">Net Profit</p>
+                    <p class="text-2xl font-bold {% if metrics.net_profit > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                        ${{ metrics.net_profit|floatformat:2 }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Auto-refresh dashboard metrics every 5 minutes
+setInterval(function() {
+    fetch('/transport/analytics/api/dashboard/')
+        .then(response => response.json())
+        .then(data => {
+            // Update metrics in real-time if needed
+            console.log('Dashboard metrics updated', data);
+        })
+        .catch(error => console.error('Error updating dashboard:', error));
+}, 300000); // 5 minutes
+</script>
+
+{% endblock %}

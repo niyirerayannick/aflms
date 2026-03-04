@@ -19,7 +19,7 @@ from .views import (
 app_name = "accounts"
 
 urlpatterns = [
-    path("login/", LoginView.as_view(), name="login"),
+    path("", LoginView.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
     path("dashboard/superadmin/", SuperAdminDashboardView.as_view(), name="dashboard-superadmin"),
