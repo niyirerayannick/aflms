@@ -1,3 +1,6 @@
+import logging
+import secrets
+
 import dj_database_url
 from decouple import config
 from decouple import Csv
@@ -6,14 +9,32 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from .base import *  # noqa: F403,F401
 
-DEBUG = False
+_logger = logging.getLogger("aflms.settings")
 
-SECRET_KEY = config("SECRET_KEY")
+DEBUG = config("DEBUG", default=False, cast=bool)
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())  # noqa: F405
-CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", cast=Csv())  # noqa: F405
+# ── SECRET_KEY ────────────────────────────────────────────────────
+# Auto-generate if missing so the container can always boot.
+# A warning is logged — set a persistent key in production.
+_secret = config("SECRET_KEY", default="")
+if not _secret:
+    _secret = secrets.token_urlsafe(64)
+    _logger.warning(
+        "SECRET_KEY not set — using auto-generated key. "
+        "Sessions will be lost on restart. Set SECRET_KEY in env vars!"
+    )
+SECRET_KEY = _secret
 
-DATABASE_URL = config("DATABASE_URL")
+# ── Hosts / CSRF ─────────────────────────────────────────────────
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*", cast=Csv())  # noqa: F405
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="https://localhost",
+    cast=Csv(),
+)  # noqa: F405
+
+# ── Database ──────────────────────────────────────────────────────
+DATABASE_URL = config("DATABASE_URL", default="sqlite:///app/db.sqlite3")
 _db_ssl = config("DATABASE_SSL_REQUIRE", default=False, cast=bool)
 DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=_db_ssl)}  # noqa: F405
 
