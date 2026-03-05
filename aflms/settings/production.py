@@ -38,7 +38,7 @@ DATABASE_URL = config("DATABASE_URL", default="sqlite:///app/db.sqlite3")
 _db_ssl = config("DATABASE_SSL_REQUIRE", default=False, cast=bool)
 DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=_db_ssl)}  # noqa: F405
 
-SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
+SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=False, cast=bool)
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=True, cast=bool)
 CSRF_COOKIE_SECURE = config("CSRF_COOKIE_SECURE", default=True, cast=bool)
 SECURE_HSTS_SECONDS = 31536000
