@@ -20,3 +20,4 @@ Pillow==11.1.0
 sentry-sdk==2.22.0
 django-csp==3.8
 twilio>=8.0.0
+reportlab==4.1.0
