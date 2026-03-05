@@ -30,7 +30,8 @@ RUN apt-get update \
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
-# Copy application code
+# Copy application code — bust cache on every commit
+ARG CACHEBUST=1
 COPY . /app/
 
 # Make entrypoint executable
