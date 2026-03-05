@@ -36,6 +36,13 @@ htmlcov/
 Thumbs.db
 .DS_Store
 
+# Large binary files
+*.dmg
+*.iso
+*.zip
+*.tar.gz
+get-pip.py
+
 # Node/Tailwind artifacts
 node_modules/
 npm-debug.log*
