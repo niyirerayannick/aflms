@@ -45,17 +45,29 @@ def _validate_twilio_request(request) -> bool:
 
     signature = request.META.get("HTTP_X_TWILIO_SIGNATURE", "")
     if not signature:
+        logger.warning("No X-Twilio-Signature header present.")
         return False
+
+    # Build the URL Twilio used to sign the request.
+    # Behind a reverse proxy (Coolify/Traefik) Django may see http://
+    # while Twilio signed https://.  Use build_absolute_uri() which
+    # respects SECURE_PROXY_SSL_HEADER + USE_X_FORWARDED_HOST.
+    url = request.build_absolute_uri()
+    logger.debug("Twilio validation URL: %s", url)
 
     try:
         from twilio.request_validator import RequestValidator
 
         validator = RequestValidator(auth_token)
-        url = request.build_absolute_uri()
-        return validator.validate(url, request.POST.dict(), signature)
+        valid = validator.validate(url, request.POST.dict(), signature)
+        if not valid:
+            logger.warning(
+                "Twilio signature mismatch. URL used: %s | Signature: %s",
+                url, signature[:20] + "...",
+            )
+        return valid
     except ImportError:
         # Fallback: manual HMAC validation
-        url = request.build_absolute_uri()
         params = request.POST.dict()
         data = url + urlencode(sorted(params.items()))
         expected = hmac.new(
