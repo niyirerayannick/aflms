@@ -27,6 +27,10 @@ SECRET_KEY = _secret
 
 # ── Hosts / CSRF ─────────────────────────────────────────────────
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*", cast=Csv())  # noqa: F405
+# Always allow localhost for Docker healthcheck
+for _h in ("localhost", "127.0.0.1"):
+    if _h not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(_h)
 CSRF_TRUSTED_ORIGINS = config(
     "CSRF_TRUSTED_ORIGINS",
     default="https://localhost",
