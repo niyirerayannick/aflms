@@ -1,9 +1,12 @@
 from django.urls import path
-from transport.analytics.views import TripListView, TripDetailView
+from . import views
 
-# Trip management endpoints 
+app_name = 'trips'
+
 urlpatterns = [
-    path("", TripListView.as_view(), name="transport-trips-list"),
-    path("<int:pk>/", TripDetailView.as_view(), name="transport-trip-detail"),
-    # Add more trip endpoints as needed
+    path("", views.TripListView.as_view(), name="list"),
+    path("create/", views.TripCreateView.as_view(), name="create"),
+    path("<int:pk>/", views.TripDetailView.as_view(), name="detail"),
+    path("<int:pk>/edit/", views.TripUpdateView.as_view(), name="edit"),
+    path("<int:trip_id>/status/", views.update_trip_status, name="status-update"),
 ]

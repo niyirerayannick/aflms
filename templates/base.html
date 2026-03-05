@@ -4,10 +4,11 @@
     {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Afrilott Transport Management System">
+    <meta name="description" content="{% if system_settings %}{{ system_settings.company_name }}{% else %}Afrilott{% endif %} Transport Management System">
     <meta name="theme-color" content="#1E40AF">
-    <title>{% block title %}ATMS{% endblock %}</title>
+    <title>{% block title %}{% if system_settings %}{{ system_settings.company_name }}{% else %}ATMS{% endif %}{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js" defer></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -33,7 +34,7 @@
 
             <footer class="border-t border-slate-200 bg-white px-4 sm:px-6 lg:px-8 py-4 text-sm text-slate-500">
                 <div class="flex items-center justify-between">
-                    <span>© {% now "Y" %} ATMS</span>
+                    <span>© {% now "Y" %} {% if system_settings %}{{ system_settings.company_name }}{% else %}ATMS{% endif %}</span>
                     <span>System version v1.0.0</span>
                 </div>
             </footer>

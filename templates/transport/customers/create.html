@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Customer | ATMS{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{% url 'transport:customers:list' %}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
+            <svg class="-ml-1 mr-1 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            Back to Customers
+        </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center">
+            <div class="flex-shrink-0 h-12 w-12">
+                <div class="h-12 w-12 rounded-full bg-green-500 flex items-center justify-center">
+                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="ml-4">
+                <h1 class="text-3xl font-bold text-gray-900">Add New Customer</h1>
+                <p class="text-sm text-gray-500">Create a new customer profile. A login account will be created and credentials sent automatically.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white shadow-lg rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Customer Information
+            </h3>
+            <p class="mt-1 text-sm text-gray-500">
+                Fill in the customer details below. All fields marked with an asterisk (*) are required.
+            </p>
+        </div>
+
+        <form method="post" class="px-6 py-8">
+            {% csrf_token %}
+            
+            <!-- Display form errors if any -->
+            {% if form.non_field_errors %}
+                <div class="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                Please correct the following errors:
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc list-inside">
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Section: Company Information -->
+            <div class="border-b border-gray-200 pb-6 mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <svg class="inline w-5 h-5 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    Company Information
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Company Name -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.company_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Company Name <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.company_name }}
+                        {% if form.company_name.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.company_name.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Customer's full name or company name</p>
+                    </div>
+
+                    <!-- Contact Person -->
+                    <div>
+                        <label for="{{ form.contact_person.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Contact Person
+                        </label>
+                        {{ form.contact_person }}
+                        {% if form.contact_person.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.contact_person.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Primary contact person name</p>
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Status
+                        </label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Address -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Address
+                        </label>
+                        {{ form.address }}
+                        {% if form.address.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.address.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Full street address</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Contact & Account -->
+            <div class="border-b border-gray-200 pb-6 mb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <svg class="inline w-5 h-5 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    Contact & Account Details
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- Email -->
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Email Address <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.email.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.email.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            Phone Number
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">Primary contact number</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Account Creation -->
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div class="flex items-start">
+                    <div class="flex items-center h-5 mt-0.5">
+                        {{ form.create_account }}
+                    </div>
+                    <div class="ml-3">
+                        <label for="{{ form.create_account.id_for_label }}" class="text-sm font-medium text-gray-900">
+                            {{ form.create_account.label }}
+                        </label>
+                        <p class="text-xs text-gray-600 mt-1">
+                            {{ form.create_account.help_text }}
+                        </p>
+                    </div>
+                </div>
+                <div id="account-info" class="mt-3 ml-7 text-xs text-green-700 bg-green-100 rounded p-3">
+                    <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    A system-generated password will be sent to the customer's <strong>email address</strong>. 
+                    The customer can use these credentials to log in and track orders, view invoices, etc.
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="pt-6 border-t border-gray-200">
+                <div class="flex justify-end space-x-3">
+                    <a href="{% url 'transport:customers:list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancel
+                    </a>
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Create Customer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="mt-8 bg-blue-50 border border-blue-200 rounded-md p-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">
+                    Customer Management Tips
+                </h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Use the complete legal name for business customers</li>
+                        <li>Verify email addresses for accurate communications</li>
+                        <li>When an account is created, the customer can log in to track orders and view invoices</li>
+                        <li>Phone numbers should include country/area codes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle account creation info
+    const createAccountCheckbox = document.getElementById('id_create_account');
+    const accountInfo = document.getElementById('account-info');
+    
+    if (createAccountCheckbox && accountInfo) {
+        function toggleAccountInfo() {
+            accountInfo.style.display = createAccountCheckbox.checked ? 'block' : 'none';
+        }
+        toggleAccountInfo();
+        createAccountCheckbox.addEventListener('change', toggleAccountInfo);
+    }
+});
+</script>
+{% endblock %}

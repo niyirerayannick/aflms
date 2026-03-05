@@ -1,15 +1,21 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, ListView, TemplateView, UpdateView
+from django.db.models import Q, Count
+from django.utils import timezone
+from datetime import datetime, timedelta
 
-from .forms import LoginForm, UserCreationForm, UserProfileForm, UserUpdateForm
+from .forms import LoginForm, UserCreationForm, UserProfileForm, UserUpdateForm, SystemSettingsForm
 from .mixins import AdminMixin, ClientMixin, DriverMixin, ManagerMixin, SuperAdminMixin
-from .models import User
+from .models import User, ActivityLog, RolePermission, SystemSettings
+from django.contrib.auth.decorators import login_required as login_required_fn
 
 
 def role_dashboard_name(role):
@@ -188,7 +194,329 @@ class UserDeleteView(SuperAdminMixin, View):
         if user == request.user:
             messages.error(request, "You cannot delete your own account.")
             return redirect("accounts:user-list")
+        
+        # Log the deletion activity
+        ActivityLog.objects.create(
+            user=request.user,
+            action=ActivityLog.ActionType.DELETE,
+            description=f"Deleted user: {user.full_name} ({user.email})",
+            ip_address=self.get_client_ip(request)
+        )
+        
         user.delete()
         messages.success(request, "User deleted successfully.")
         return redirect("accounts:user-list")
+    
+    def get_client_ip(self, request):
+        """Get client IP address"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
 
+
+class RoleManagementView(SuperAdminMixin, TemplateView):
+    """Role and permission management interface"""
+    template_name = 'accounts/role_management.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # User role statistics
+        role_stats = []
+        for role_choice in User.Role.choices:
+            role_code, role_name = role_choice
+            count = User.objects.filter(role=role_code).count()
+            role_stats.append({
+                'code': role_code,
+                'name': role_name,
+                'count': count
+            })
+        
+        context.update({
+            'role_stats': role_stats,
+            'total_users': User.objects.count(),
+            'permissions': Permission.objects.all()[:20],  # Show first 20 permissions
+            'recent_role_changes': self.get_recent_role_changes(),
+        })
+        
+        return context
+    
+    def get_recent_role_changes(self):
+        """Get recent role/permission changes"""
+        return ActivityLog.objects.filter(
+            action__in=['create', 'update'], 
+            description__icontains='role'
+        )[:10]
+
+
+class UserRoleUpdateView(SuperAdminMixin, View):
+    """Update user role"""
+    
+    def post(self, request, *args, **kwargs):
+        user_id = kwargs.get('pk')
+        new_role = request.POST.get('role')
+        
+        user = get_object_or_404(User, pk=user_id)
+        old_role = user.role
+        
+        if new_role in dict(User.Role.choices):
+            user.role = new_role
+            user.save()
+            
+            # Log the role change
+            ActivityLog.objects.create(
+                user=request.user,
+                action=ActivityLog.ActionType.UPDATE,
+                description=f"Changed role of {user.full_name} from {old_role} to {new_role}",
+                ip_address=self.get_client_ip(request)
+            )
+            
+            messages.success(request, f"Successfully updated {user.full_name}'s role to {new_role}")
+        else:
+            messages.error(request, "Invalid role selected")
+        
+        return redirect('accounts:role-management')
+    
+    def get_client_ip(self, request):
+        """Get client IP address"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+
+class ActivityLogView(AdminMixin, ListView):
+    """Display user activity logs"""
+    model = ActivityLog
+    template_name = 'accounts/activity_logs.html'
+    context_object_name = 'logs'
+    paginate_by = 50
+    
+    def get_queryset(self):
+        queryset = ActivityLog.objects.select_related('user').all()
+        
+        # Filtering
+        user_filter = self.request.GET.get('user')
+        action_filter = self.request.GET.get('action')
+        date_from = self.request.GET.get('date_from')
+        date_to = self.request.GET.get('date_to')
+        search = self.request.GET.get('search')
+        
+        if user_filter:
+            queryset = queryset.filter(user__id=user_filter)
+        if action_filter:
+            queryset = queryset.filter(action=action_filter)
+        if date_from:
+            queryset = queryset.filter(created_at__gte=date_from)
+        if date_to:
+            queryset = queryset.filter(created_at__lte=date_to)
+        if search:
+            queryset = queryset.filter(
+                Q(description__icontains=search) |
+                Q(user__full_name__icontains=search) |
+                Q(user__email__icontains=search)
+            )
+            
+        return queryset.order_by('-created_at')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Statistics for the page
+        today = timezone.now().date()
+        week_ago = today - timedelta(days=7)
+        
+        context.update({
+            'users': User.objects.all(),
+            'action_choices': ActivityLog.ActionType.choices,
+            'total_activities': ActivityLog.objects.count(),
+            'activities_today': ActivityLog.objects.filter(created_at__date=today).count(),
+            'activities_this_week': ActivityLog.objects.filter(created_at__date__gte=week_ago).count(),
+            
+            # Current filter values
+            'current_user': self.request.GET.get('user'),
+            'current_action': self.request.GET.get('action'),
+            'current_date_from': self.request.GET.get('date_from'),
+            'current_date_to': self.request.GET.get('date_to'),
+            'current_search': self.request.GET.get('search'),
+        })
+        
+        return context
+
+
+class PermissionManagementView(SuperAdminMixin, TemplateView):
+    """Manage permissions for different roles"""
+    template_name = 'accounts/permission_management.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # Group permissions by content type for better organization
+        permissions_by_app = {}
+        for permission in Permission.objects.select_related('content_type').all():
+            app_label = permission.content_type.app_label
+            if app_label not in permissions_by_app:
+                permissions_by_app[app_label] = []
+            permissions_by_app[app_label].append(permission)
+        
+        context.update({
+            'permissions_by_app': permissions_by_app,
+            'role_choices': User.Role.choices,
+            'role_permissions': RolePermission.objects.select_related('permission', 'granted_by').all()
+        })
+        
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        """Handle permission assignment"""
+        role = request.POST.get('role')
+        permission_id = request.POST.get('permission_id')
+        action = request.POST.get('action')  # 'grant' or 'revoke'
+        
+        if not all([role, permission_id, action]):
+            messages.error(request, "Missing required parameters")
+            return self.get(request, *args, **kwargs)
+        
+        try:
+            permission = Permission.objects.get(id=permission_id)
+            
+            if action == 'grant':
+                role_perm, created = RolePermission.objects.get_or_create(
+                    role=role,
+                    permission=permission,
+                    defaults={'granted_by': request.user}
+                )
+                if created:
+                    ActivityLog.objects.create(
+                        user=request.user,
+                        action=ActivityLog.ActionType.CREATE,
+                        description=f"Granted permission '{permission.name}' to role '{role}'",
+                        ip_address=self.get_client_ip(request)
+                    )
+                    messages.success(request, f"Permission granted successfully")
+                else:
+                    messages.info(request, f"Permission already granted to this role")
+                    
+            elif action == 'revoke':
+                deleted_count = RolePermission.objects.filter(
+                    role=role, 
+                    permission=permission
+                ).delete()[0]
+                
+                if deleted_count > 0:
+                    ActivityLog.objects.create(
+                        user=request.user,
+                        action=ActivityLog.ActionType.DELETE,
+                        description=f"Revoked permission '{permission.name}' from role '{role}'",
+                        ip_address=self.get_client_ip(request)
+                    )
+                    messages.success(request, f"Permission revoked successfully")
+                else:
+                    messages.warning(request, f"Permission was not assigned to this role")
+                    
+        except Permission.DoesNotExist:
+            messages.error(request, "Permission not found")
+        
+        return self.get(request, *args, **kwargs)
+    
+    def get_client_ip(self, request):
+        """Get client IP address"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+
+class SystemSettingsView(AdminMixin, View):
+    """Manage system settings like colors, currency, etc."""
+    template_name = 'accounts/system_settings.html'
+    
+    def get(self, request):
+        """Display settings form"""
+        settings = SystemSettings.get_settings()
+        form = SystemSettingsForm(instance=settings)
+        
+        context = {
+            'form': form,
+            'settings': settings,
+            'page_title': 'System Settings'
+        }
+        return render(request, self.template_name, context)
+    
+    def post(self, request):
+        """Handle settings update"""
+        settings = SystemSettings.get_settings()
+        form = SystemSettingsForm(request.POST, request.FILES, instance=settings)
+        
+        if form.is_valid():
+            updated_settings = form.save(commit=False)
+            updated_settings.updated_by = request.user
+            updated_settings.save()
+            
+            # Log the activity
+            ActivityLog.objects.create(
+                user=request.user,
+                action=ActivityLog.ActionType.UPDATE,
+                description=f"Updated system settings",
+                ip_address=self.get_client_ip(request)
+            )
+            
+            messages.success(request, "System settings updated successfully!")
+            return redirect('accounts:system-settings')
+        
+        context = {
+            'form': form,
+            'settings': settings,
+            'page_title': 'System Settings'
+        }
+        return render(request, self.template_name, context)
+    
+    def get_client_ip(self, request):
+        """Get client IP address"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+
+# ── Currency exchange-rate API ──────────────────────────────────
+@login_required_fn
+def exchange_rates_api(request):
+    """
+    AJAX endpoint returning live exchange rates.
+    GET /accounts/exchange-rates/
+    GET /accounts/exchange-rates/?base=RWF
+    """
+    from .currency import get_exchange_rates, CURRENCY_SYMBOLS, CURRENCY_DECIMALS
+
+    base = request.GET.get('base', '').upper()
+    if not base:
+        settings_obj = SystemSettings.get_settings()
+        base = settings_obj.currency if settings_obj else 'USD'
+
+    rates = get_exchange_rates(base)
+
+    supported = ['USD', 'RWF', 'EUR', 'GBP', 'KES', 'UGX', 'TZS']
+    result = {}
+    for code in supported:
+        if code in rates:
+            result[code] = {
+                'rate': rates[code],
+                'symbol': CURRENCY_SYMBOLS.get(code, code),
+                'decimals': CURRENCY_DECIMALS.get(code, 2),
+            }
+
+    return JsonResponse({
+        'success': True,
+        'base': base,
+        'rates': result,
+    })

@@ -15,6 +15,8 @@ urlpatterns = [
     path("account/", include("allauth.urls")),
     path("", include("accounts.urls")),
     path("transport/", include("transport.urls")),
+    # WhatsApp webhook (outside transport namespace for clean Twilio config)
+    path("api/whatsapp/", include("transport.messaging.urls")),
 ]
 
 if settings.DEBUG:

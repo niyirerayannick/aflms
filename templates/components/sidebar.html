@@ -1,23 +1,191 @@
 <div class="h-full flex flex-col">
     <div class="h-16 px-6 flex items-center border-b border-slate-200">
-        <a href="{% url 'accounts:dashboard' %}" class="text-xl font-bold text-blue-800">ATMS</a>
+        <a href="{% url 'accounts:dashboard' %}" class="text-xl font-bold text-blue-800">{% if system_settings %}{{ system_settings.company_name }}{% else %}ATMS{% endif %}</a>
     </div>
 
     <nav class="flex-1 overflow-y-auto p-4 space-y-1 text-sm">
         {% with path=request.path role=request.user.role %}
-            {% if role == 'superadmin' or role == 'admin' %}
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/dashboard/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Dashboard</a>
-                <a href="{% url 'accounts:user-list' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/users/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Users</a>
-                <a href="/transport/analytics/dashboard/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Transport Management</a>
-            {% elif role == 'manager' %}
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/dashboard/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Dashboard</a>
-                <a href="/transport/analytics/dashboard/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Transport Management</a>
+            {% if role == 'superadmin' or role == 'admin' or role == 'manager' %}
+                <!-- Dashboard -->
+                <a href="/transport/analytics/dashboard/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/analytics/dashboard' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                    </svg>
+                    Dashboard
+                </a>
+                
+                <!-- Fleet Management -->
+                <div class="mt-4">
+                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Fleet</div>
+                    <a href="{% url 'transport:vehicles:list' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/vehicles' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"></path>
+                        </svg>
+                        Vehicles
+                    </a>
+                    <a href="/transport/drivers/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/drivers' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        Drivers
+                    </a>
+                    <a href="/transport/routes/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/routes' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m-6 3l6-3"></path>
+                        </svg>
+                        Routes
+                    </a>
+                </div>
+
+                <!-- Operations -->
+                <div class="mt-4">
+                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Operations</div>
+                    <a href="/transport/trips/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/trips' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Trips
+                    </a>
+                    <a href="/transport/customers/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/customers' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a2 2 0 00-1.5-1.93l-.5-.13A2 2 0 0019 15V5a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 00-.5.93L4 16.07A2 2 0 002.5 18v2h5"></path>
+                        </svg>
+                        Customers
+                    </a>
+                </div>
+
+                <!-- Fuel Management -->
+                <div x-data="{ fuelOpen: window.location.pathname.includes('/transport/fuel') }" class="mt-4">
+                    <button @click="fuelOpen = !fuelOpen" class="w-full flex items-center justify-between rounded-lg px-3 py-2 {% if '/transport/fuel' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                        <span class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            Fuel Management
+                        </span>
+                        <svg :class="fuelOpen ? 'rotate-90' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                    <div x-show="fuelOpen" x-transition class="ml-7 mt-1 space-y-1">
+                        <a href="/transport/fuel/" class="block rounded-lg px-3 py-1.5 text-sm {% if path == '/transport/fuel/' %}text-blue-700 bg-blue-50 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                            Fuel Records
+                        </a>
+                        <a href="/transport/fuel/stations/" class="block rounded-lg px-3 py-1.5 text-sm {% if '/transport/fuel/stations' in path %}text-blue-700 bg-blue-50 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                            Fuel Stations
+                        </a>
+                        <a href="/transport/fuel/analytics/" class="block rounded-lg px-3 py-1.5 text-sm {% if '/transport/fuel/analytics' in path %}text-blue-700 bg-blue-50 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                            Analytics Dashboard
+                        </a>
+                        <a href="/transport/fuel/efficiency/" class="block rounded-lg px-3 py-1.5 text-sm {% if '/transport/fuel/efficiency' in path %}text-blue-700 bg-blue-50 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                            Vehicle Efficiency
+                        </a>
+                        <a href="/transport/fuel/trends/" class="block rounded-lg px-3 py-1.5 text-sm {% if '/transport/fuel/trends' in path %}text-blue-700 bg-blue-50 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                            Monthly Trends
+                        </a>
+                        <a href="/transport/fuel/alerts/" class="block rounded-lg px-3 py-1.5 text-sm {% if '/transport/fuel/alerts' in path %}text-blue-700 bg-blue-50 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                            Variance Alerts
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Maintenance -->
+                <a href="/transport/maintenance/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/maintenance' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Maintenance
+                </a>
+
+                <!-- Financial -->
+                <div x-data="{ financeOpen: window.location.pathname.includes('/transport/finance') }" class="mt-4">
+                    <button @click="financeOpen = !financeOpen" class="w-full flex items-center justify-between rounded-lg px-3 py-2 {% if '/transport/finance' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                        <span class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                            Financial
+                        </span>
+                        <svg :class="financeOpen ? 'rotate-90' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                    <div x-show="financeOpen" x-transition class="ml-7 mt-1 space-y-1">
+                        <a href="/transport/finance/" class="block rounded-lg px-3 py-1.5 text-sm {% if path == '/transport/finance/' %}text-blue-700 bg-blue-50 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                            Dashboard
+                        </a>
+                        <a href="/transport/finance/payments/" class="block rounded-lg px-3 py-1.5 text-sm {% if '/transport/finance/payments' in path %}text-blue-700 bg-blue-50 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                            Payments
+                        </a>
+                        <a href="/transport/finance/expenses/" class="block rounded-lg px-3 py-1.5 text-sm {% if '/transport/finance/expenses' in path %}text-blue-700 bg-blue-50 font-medium{% else %}text-slate-600 hover:bg-slate-100{% endif %}">
+                            Expenses
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Analytics -->
+                <a href="/transport/analytics/" class="flex items-center rounded-lg px-3 py-2 mt-4 {% if '/transport/analytics' in path and 'dashboard' not in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Analytics
+                </a>
+
+                <!-- Reports -->
+                <a href="/transport/reports/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/reports' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Reports
+                </a>
+
+                <!-- Administration -->
+                <div class="mt-4">
+                    <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Administration</div>
+                    <a href="{% url 'accounts:user-list' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/users/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                        Users
+                    </a>
+                    <a href="{% url 'accounts:system-settings' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/settings/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Settings
+                    </a>
+                </div>
+
             {% elif role == 'driver' %}
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/dashboard/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Dashboard</a>
-                <a href="/transport/trips/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/trips/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">My Trips</a>
+                <a href="/transport/analytics/driver-dashboard/" class="flex items-center rounded-lg px-3 py-2 {% if '/driver-dashboard' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="/transport/trips/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/trips' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    My Trips
+                </a>
+                
             {% elif role == 'client' %}
-                <a href="{% url 'accounts:dashboard' %}" class="flex items-center rounded-lg px-3 py-2 {% if '/dashboard/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">Dashboard</a>
-                <a href="/transport/trips/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/trips/' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">My Orders</a>
+                <a href="/transport/analytics/client-dashboard/" class="flex items-center rounded-lg px-3 py-2 {% if '/client-dashboard' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="/transport/trips/" class="flex items-center rounded-lg px-3 py-2 {% if '/transport/trips' in path %}bg-blue-50 text-blue-700{% else %}text-slate-700 hover:bg-slate-100{% endif %}">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    My Orders
+                </a>
+                
             {% endif %}
         {% endwith %}
     </nav>

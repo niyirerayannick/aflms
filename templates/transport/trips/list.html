@@ -1,67 +1,134 @@
 {% extends "base.html" %}
+{% load currency_tags %}
 
-{% block title %}{{ page_title }} | ATMS{% endblock %}
+{% block title %}Trips | ATMS{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
+
     <!-- Page Header -->
     <div class="mb-8">
         <div class="flex justify-between items-start">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
+                <h1 class="text-3xl font-bold text-gray-900">Trips</h1>
                 <p class="mt-2 text-sm text-gray-600">Manage and track transport operations</p>
             </div>
             {% if request.user.role != 'driver' and request.user.role != 'client' %}
-            <div class="flex space-x-3">
-                <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
-                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    New Trip
-                </a>
-            </div>
+            <a href="{% url 'transport:trips:create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                New Trip
+            </a>
             {% endif %}
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg shadow p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Trips</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ total_trips }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Draft</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ draft_trips }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-indigo-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Active</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ active_trips }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-5">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Delivered</p>
+                    <p class="text-2xl font-semibold text-gray-900">{{ delivered_trips }}</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Filters -->
     <div class="bg-white p-4 rounded-lg shadow mb-6">
-        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <!-- Search -->
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
-                <input type="text" name="search" id="search" value="{{ search_query }}" 
-                       placeholder="Search by order number..."
-                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <input type="text" name="search" id="search" value="{{ request.GET.search }}"
+                       placeholder="Order #, customer, driver..."
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
             </div>
-            
+
             <!-- Status Filter -->
             <div>
                 <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
                     <option value="">All Statuses</option>
                     {% for value, label in status_choices %}
-                        <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                        <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
             </div>
-            
+
+            <!-- Driver Filter -->
+            <div>
+                <label for="driver" class="block text-sm font-medium text-gray-700">Driver</label>
+                <select name="driver" id="driver" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm">
+                    <option value="">All Drivers</option>
+                    {% for d in drivers %}
+                        <option value="{{ d.pk }}" {% if request.GET.driver == d.pk|stringformat:"d" %}selected{% endif %}>{{ d.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <!-- Submit -->
             <div class="flex items-end">
                 <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
                     <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
-                    Search
+                    Filter
                 </button>
             </div>
         </form>
     </div>
 
     <!-- Trips Table -->
-    <div class="bg-white shadow overflow-hidden sm:rounded-md">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
         {% if trips %}
+        <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -71,39 +138,37 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for trip in trips %}
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900">
-                                <a href="{% url 'analytics:trip-detail' trip.pk %}" class="text-blue-600 hover:text-blue-900">
-                                    {{ trip.order_number }}
-                                </a>
-                            </div>
-                            <div class="text-sm text-gray-500">{{ trip.created_at|date:"M d, Y" }}</div>
+                            <a href="{% url 'transport:trips:detail' trip.pk %}" class="text-sm font-medium text-blue-600 hover:text-blue-900">
+                                {{ trip.order_number }}
+                            </a>
+                            <div class="text-xs text-gray-500">{{ trip.created_at|date:"M d, Y" }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ trip.customer.name }}</div>
-                            <div class="text-sm text-gray-500">{{ trip.commodity_type.name }}</div>
+                            <div class="text-sm text-gray-900">{{ trip.customer.company_name }}</div>
+                            <div class="text-xs text-gray-500">{{ trip.commodity_type.name }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">{{ trip.route.origin }}</div>
-                            <div class="text-sm text-gray-500">→ {{ trip.route.destination }}</div>
+                            <div class="text-xs text-gray-500">→ {{ trip.route.destination }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">{{ trip.vehicle.plate_number }}</div>
-                            <div class="text-sm text-gray-500">{{ trip.vehicle.vehicle_type }}</div>
+                            <div class="text-xs text-gray-500">{{ trip.vehicle.vehicle_type }}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ trip.driver.user.get_full_name }}</div>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ trip.driver.name }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
-                                {% if trip.status == 'DELIVERED' %}bg-green-100 text-green-800
+                                {% if trip.status == 'DELIVERED' or trip.status == 'CLOSED' %}bg-green-100 text-green-800
                                 {% elif trip.status == 'IN_TRANSIT' %}bg-blue-100 text-blue-800
                                 {% elif trip.status == 'ASSIGNED' %}bg-yellow-100 text-yellow-800
                                 {% elif trip.status == 'APPROVED' %}bg-purple-100 text-purple-800
@@ -111,56 +176,42 @@
                                 {{ trip.get_status_display }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${{ trip.revenue|floatformat:2 }}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                            {{ trip.revenue|currency }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{% url 'analytics:trip-detail' trip.pk %}" class="text-blue-600 hover:text-blue-900 mr-4">
-                                View
-                            </a>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{% url 'transport:trips:detail' trip.pk %}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
                             {% if request.user.role != 'driver' and request.user.role != 'client' %}
-                            <a href="#" class="text-gray-600 hover:text-gray-900">
-                                Edit
-                            </a>
+                                {% if trip.status == 'DRAFT' or trip.status == 'APPROVED' %}
+                                <a href="{% url 'transport:trips:edit' trip.pk %}" class="text-gray-600 hover:text-gray-900">Edit</a>
+                                {% endif %}
                             {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
 
             <!-- Pagination -->
             {% if is_paginated %}
             <div class="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
                 <div class="flex items-center justify-between">
-                    <div class="flex-1 flex justify-between sm:hidden">
+                    <p class="text-sm text-gray-700">
+                        Showing <span class="font-medium">{{ page_obj.start_index }}</span>
+                        to <span class="font-medium">{{ page_obj.end_index }}</span>
+                        of <span class="font-medium">{{ paginator.count }}</span> results
+                    </p>
+                    <nav class="inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
                         {% if page_obj.has_previous %}
-                            <a href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}" 
-                               class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                                Previous
-                            </a>
+                        <a href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}"
+                           class="relative inline-flex items-center rounded-l-md px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">Previous</a>
                         {% endif %}
                         {% if page_obj.has_next %}
-                            <a href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}" 
-                               class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                                Next
-                            </a>
+                        <a href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}"
+                           class="relative inline-flex items-center rounded-r-md px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">Next</a>
                         {% endif %}
-                    </div>
-                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                        <div>
-                            <p class="text-sm text-gray-700">
-                                Showing
-                                <span class="font-medium">{{ page_obj.start_index }}</span>
-                                to
-                                <span class="font-medium">{{ page_obj.end_index }}</span>
-                                of
-                                <span class="font-medium">{{ paginator.count }}</span>
-                                results
-                            </p>
-                        </div>
-                        <!-- Page numbers... -->
-                    </div>
+                    </nav>
                 </div>
             </div>
             {% endif %}
@@ -173,7 +224,7 @@
                 </svg>
                 <h3 class="mt-2 text-sm font-medium text-gray-900">No trips found</h3>
                 <p class="mt-1 text-sm text-gray-500">
-                    {% if search_query or selected_status %}
+                    {% if request.GET.search or request.GET.status %}
                         Try adjusting your search criteria
                     {% else %}
                         Get started by creating a new trip
@@ -181,7 +232,7 @@
                 </p>
                 {% if request.user.role != 'driver' and request.user.role != 'client' %}
                 <div class="mt-6">
-                    <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    <a href="{% url 'transport:trips:create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
                         <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>

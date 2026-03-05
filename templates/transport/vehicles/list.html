@@ -17,7 +17,7 @@
                 <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Export
                 </a>
-                <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                <a href="{% url 'transport:vehicles:create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
                     <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
@@ -63,12 +63,34 @@
     </div>
 
     <!-- Fleet Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Vehicles -->
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                        <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Total Vehicles</dt>
+                            <dd class="text-2xl font-bold text-gray-900">{{ total_vehicles }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Available -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
@@ -77,20 +99,19 @@
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Available</dt>
-                            <dd class="text-lg font-medium text-gray-900">
-                                {{ vehicles|length }}
-                            </dd>
+                            <dd class="text-2xl font-bold text-green-600">{{ available_vehicles }}</dd>
                         </dl>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- In Service -->
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+                        <div class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                             </svg>
@@ -99,31 +120,29 @@
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">In Service</dt>
-                            <dd class="text-lg font-medium text-gray-900">
-                                {% for vehicle in vehicles %}{% if vehicle.status == 'ASSIGNED' %}{{ forloop.counter0|add:1 }}{% endif %}{% empty %}0{% endfor %}
-                            </dd>
+                            <dd class="text-2xl font-bold text-amber-600">{{ assigned_vehicles }}</dd>
                         </dl>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Maintenance -->
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-8 h-8 bg-red-500 rounded-md flex items-center justify-center">
+                        <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
                         </div>
                     </div>
                     <div class="ml-5 w-0 flex-1">
                         <dl>
                             <dt class="text-sm font-medium text-gray-500 truncate">Maintenance</dt>
-                            <dd class="text-lg font-medium text-gray-900">
-                                {% for vehicle in vehicles %}{% if vehicle.status == 'MAINTENANCE' %}{{ forloop.counter0|add:1 }}{% endif %}{% empty %}0{% endfor %}
-                            </dd>
+                            <dd class="text-2xl font-bold text-red-600">{{ maintenance_vehicles }}</dd>
                         </dl>
                     </div>
                 </div>
@@ -198,10 +217,18 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
-                                {% if request.user.role != 'driver' %}
-                                    <a href="#" class="text-gray-600 hover:text-gray-900">Edit</a>
-                                {% endif %}
+                                <div class="flex items-center space-x-3">
+                                    <a href="{% url 'transport:vehicles:detail' vehicle.pk %}" class="inline-flex items-center text-blue-600 hover:text-blue-900 transition">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        View
+                                    </a>
+                                    {% if request.user.role != 'driver' %}
+                                    <a href="{% url 'transport:vehicles:edit' vehicle.pk %}" class="inline-flex items-center text-gray-600 hover:text-gray-900 transition">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        Edit
+                                    </a>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -236,12 +263,18 @@
                             <span class="text-gray-900">{{ vehicle.next_service_km|floatformat:0 }} km</span>
                         </div>
                     </div>
-                    {% if request.user.role != 'driver' %}
                     <div class="mt-4 flex space-x-3">
-                        <a href="#" class="text-blue-600 hover:text-blue-900 text-sm font-medium">View Details</a>
-                        <a href="#" class="text-gray-600 hover:text-gray-900 text-sm font-medium">Edit</a>
+                        <a href="{% url 'transport:vehicles:detail' vehicle.pk %}" class="inline-flex items-center text-blue-600 hover:text-blue-900 text-sm font-medium">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            View Details
+                        </a>
+                        {% if request.user.role != 'driver' %}
+                        <a href="{% url 'transport:vehicles:edit' vehicle.pk %}" class="inline-flex items-center text-gray-600 hover:text-gray-900 text-sm font-medium">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            Edit
+                        </a>
+                        {% endif %}
                     </div>
-                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
@@ -298,7 +331,7 @@
                 </p>
                 {% if request.user.role != 'driver' and request.user.role != 'client' %}
                 <div class="mt-6">
-                    <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    <a href="{% url 'transport:vehicles:create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
                         <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>

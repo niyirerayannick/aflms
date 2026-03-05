@@ -1,9 +1,12 @@
 from django.urls import path
+from . import views
 
-# Transport.maintenance will provide maintenance management endpoints
-# These can be expanded with actual views later
+app_name = 'maintenance'
+
+# Maintenance management endpoints
 urlpatterns = [
-    # path("", MaintenanceListView.as_view(), name="transport-maintenance-list"),
-    # path("<int:pk>/", MaintenanceDetailView.as_view(), name="transport-maintenance-detail"),
-    # Add more maintenance endpoints as needed
+    path("", views.MaintenanceListView.as_view(), name="list"),
+    path("create/", views.MaintenanceCreateView.as_view(), name="create"),
+    path("<int:pk>/", views.MaintenanceDetailView.as_view(), name="detail"),
+    path("<int:pk>/edit/", views.MaintenanceUpdateView.as_view(), name="edit"),
 ]

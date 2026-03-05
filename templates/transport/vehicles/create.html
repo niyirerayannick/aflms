@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Add New Vehicle | AFLMS{% endblock %}
+
+{% block extra_head %}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Add New Vehicle</h1>
+                <p class="mt-2 text-sm text-gray-600">Register a new vehicle to the fleet</p>
+            </div>
+            <a href="{% url 'transport:vehicles:list' %}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="mr-2 -ml-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Fleet
+            </a>
+        </div>
+    </div>
+
+    <!-- Create Form -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <form method="post" class="space-y-6 p-6">
+            {% csrf_token %}
+            
+            <!-- Form Errors -->
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <!-- Vehicle Identification -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Vehicle Identification</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Plate Number -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.plate_number.label }}
+                            {% if form.plate_number.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.plate_number }}
+                        {% if form.plate_number.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.plate_number.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.plate_number.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.plate_number.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Vehicle Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.vehicle_type.label }}
+                            {% if form.vehicle_type.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.vehicle_type }}
+                        {% if form.vehicle_type.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.vehicle_type.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.vehicle_type.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.vehicle_type.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Specifications -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Vehicle Specifications</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Capacity -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.capacity.label }}
+                            {% if form.capacity.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.capacity }}
+                        {% if form.capacity.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.capacity.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.capacity.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.capacity.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Current Odometer -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.current_odometer.label }}
+                            {% if form.current_odometer.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.current_odometer }}
+                        {% if form.current_odometer.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.current_odometer.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.current_odometer.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.current_odometer.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Status -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Vehicle Status</h3>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.status.label }}
+                        {% if form.status.field.required %}<span class="text-red-500">*</span>{% endif %}
+                    </label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.status.help_text %}
+                    <p class="mt-2 text-sm text-gray-500">{{ form.status.help_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Documentation & Compliance -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Documentation & Compliance</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Insurance Expiry -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.insurance_expiry.label }}
+                            {% if form.insurance_expiry.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.insurance_expiry }}
+                        {% if form.insurance_expiry.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.insurance_expiry.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.insurance_expiry.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.insurance_expiry.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Inspection Expiry -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.inspection_expiry.label }}
+                            {% if form.inspection_expiry.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.inspection_expiry }}
+                        {% if form.inspection_expiry.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.inspection_expiry.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.inspection_expiry.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.inspection_expiry.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance Settings -->
+            <div class="pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Maintenance Settings</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Service Interval -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.service_interval_km.label }}
+                            {% if form.service_interval_km.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.service_interval_km }}
+                        {% if form.service_interval_km.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.service_interval_km.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.service_interval_km.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.service_interval_km.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Last Service KM -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.last_service_km.label }}
+                            {% if form.last_service_km.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.last_service_km }}
+                        {% if form.last_service_km.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.last_service_km.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.last_service_km.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.last_service_km.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                <a href="{% url 'transport:vehicles:list' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg class="mr-2 -ml-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Add Vehicle to Fleet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-calculate next service based on current odometer and service interval
+    const currentOdometerInput = document.getElementById('id_current_odometer');
+    const serviceIntervalInput = document.getElementById('id_service_interval_km');
+    const lastServiceInput = document.getElementById('id_last_service_km');
+    
+    function updateServiceCalculation() {
+        const currentKm = parseInt(currentOdometerInput.value) || 0;
+        const serviceInterval = parseInt(serviceIntervalInput.value) || 10000;
+        
+        // If last service isn't set and we have current odometer, suggest last service
+        if (!lastServiceInput.value && currentKm > 0) {
+            // Assume last service was at a reasonable interval before current reading
+            const suggestedLastService = Math.max(0, currentKm - (serviceInterval / 2));
+            lastServiceInput.value = Math.floor(suggestedLastService);
+        }
+    }
+
+    if (currentOdometerInput && serviceIntervalInput && lastServiceInput) {
+        currentOdometerInput.addEventListener('blur', updateServiceCalculation);
+        serviceIntervalInput.addEventListener('blur', updateServiceCalculation);
+    }
+
+    // Plate number formatting (uppercase)
+    const plateNumberInput = document.getElementById('id_plate_number');
+    if (plateNumberInput) {
+        plateNumberInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    }
+
+    // Form validation feedback
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let hasErrors = false;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    hasErrors = true;
+                    field.classList.add('border-red-300');
+                } else {
+                    field.classList.remove('border-red-300');
+                }
+            });
+
+            if (hasErrors) {
+                e.preventDefault();
+                const firstError = form.querySelector('.border-red-300');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Route | ATMS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{% url 'transport:routes:list' %}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
+            <svg class="-ml-1 mr-1 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            Back to Routes
+        </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Add New Route</h1>
+        <p class="mt-2 text-sm text-gray-600">Create a new transport route between two locations</p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow rounded-lg">
+        <form method="post" class="space-y-6 px-6 py-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">
+                                Please correct the following errors:
+                            </h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc space-y-1 pl-5">
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Origin -->
+                <div>
+                    <label for="{{ form.origin.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.origin.label }}
+                        {% if form.origin.field.required %}<span class="text-red-500">*</span>{% endif %}
+                    </label>
+                    {{ form.origin }}
+                    {% if form.origin.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.origin.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Destination -->
+                <div>
+                    <label for="{{ form.destination.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.destination.label }}
+                        {% if form.destination.field.required %}<span class="text-red-500">*</span>{% endif %}
+                    </label>
+                    {{ form.destination }}
+                    {% if form.destination.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.destination.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Distance -->
+                <div>
+                    <label for="{{ form.distance_km.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.distance_km.label }}
+                        {% if form.distance_km.field.required %}<span class="text-red-500">*</span>{% endif %}
+                    </label>
+                    {{ form.distance_km }}
+                    {% if form.distance_km.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.distance_km.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-2 text-sm text-gray-500">Enter the distance in kilometers</p>
+                </div>
+
+                <!-- Active Status -->
+                <div>
+                    <label for="{{ form.is_active.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Route Status
+                    </label>
+                    <div class="mt-2">
+                        <label class="inline-flex items-center">
+                            {{ form.is_active }}
+                            <span class="ml-2 text-sm text-gray-700">{{ form.is_active.label }}</span>
+                        </label>
+                    </div>
+                    {% if form.is_active.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.is_active.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-2 text-sm text-gray-500">Check to make this route available for trips</p>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                <a href="{% url 'transport:routes:list' %}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Add Route
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

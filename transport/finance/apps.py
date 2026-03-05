@@ -6,3 +6,6 @@ class FinanceConfig(AppConfig):
     name = "transport.finance"
     label = "atms_finance"
     verbose_name = "ATMS Finance"
+
+    def ready(self):
+        import transport.finance.signals  # noqa: F401

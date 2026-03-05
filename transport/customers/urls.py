@@ -1,9 +1,19 @@
 from django.urls import path
+from . import views
 
-# Transport.customers will provide customer management endpoints
-# These can be expanded with actual views later
+app_name = 'customers' 
+
+# Customer management endpoints
 urlpatterns = [
-    # path("", CustomerListView.as_view(), name="transport-customers-list"),
-    # path("<int:pk>/", CustomerDetailView.as_view(), name="transport-customer-detail"),
-    # Add more customer endpoints as needed
+    path("", views.CustomerListView.as_view(), name="list"),
+    path("create/", views.CustomerCreateView.as_view(), name="create"), 
+    path("<int:pk>/", views.CustomerDetailView.as_view(), name="detail"),
+    path("<int:pk>/edit/", views.CustomerUpdateView.as_view(), name="edit"),
+    path("<int:customer_id>/status/", views.customer_quick_status, name="status-update"),
+    
+    # Customer-specific routes
+    path("<int:pk>/trips/", views.CustomerDetailView.as_view(), name="trip-history"),
+    path("<int:pk>/payments/", views.CustomerDetailView.as_view(), name="payment-history"),
+    path("<int:pk>/balance/", views.CustomerDetailView.as_view(), name="outstanding-balance"),
+    path("outstanding-balances/", views.CustomerListView.as_view(), name="outstanding-balances"),
 ]

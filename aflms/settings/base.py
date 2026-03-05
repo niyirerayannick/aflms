@@ -52,6 +52,8 @@ LOCAL_APPS = [
     "transport.finance.apps.FinanceConfig",
     "transport.analytics.apps.AnalyticsConfig",
     "transport.reports.apps.ReportsConfig",
+    "transport.orders.apps.OrdersConfig",
+    "transport.messaging.apps.MessagingConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -81,6 +83,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "accounts.context_processors.system_settings",
             ],
         },
     },
@@ -142,7 +145,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
@@ -174,6 +177,12 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
+
+# Twilio WhatsApp integration
+TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", default="")
+TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", default="")
+TWILIO_WHATSAPP_NUMBER = config("TWILIO_WHATSAPP_NUMBER", default="")
+TWILIO_STATUS_CALLBACK_URL = config("TWILIO_STATUS_CALLBACK_URL", default="")
 
 LOGGING = {
     "version": 1,

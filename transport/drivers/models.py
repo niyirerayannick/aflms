@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -10,11 +11,43 @@ class Driver(TimeStampedModel):
         ASSIGNED = "ASSIGNED", "Assigned"
         LEAVE = "LEAVE", "Leave"
 
+    class LicenseCategory(models.TextChoices):
+        A = "A", "A - Motorcycles"
+        B1 = "B1", "B1 - Light Vehicles"
+        B = "B", "B - Standard Vehicles"
+        C = "C", "C - Heavy Vehicles"
+        D1 = "D1", "D1 - Minibuses"
+        D = "D", "D - Buses"
+        E = "E", "E - Trailers"
+        F = "F", "F - Special Vehicles"
+
+    # Backward compatibility property
+    STATUS_CHOICES = DriverStatus.choices
+    LICENSE_CATEGORY_CHOICES = LicenseCategory.choices
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='driver_profile'
+    )
     name = models.CharField(max_length=255)
+    email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=32)
     license_number = models.CharField(max_length=80, unique=True)
-    license_category = models.CharField(max_length=16)
+    license_category = models.CharField(
+        max_length=16,
+        choices=LicenseCategory.choices,
+        default=LicenseCategory.B
+    )
     license_expiry = models.DateField()
+    license_photo = models.ImageField(
+        upload_to='drivers/licenses/',
+        blank=True,
+        null=True,
+        help_text='Upload a photo of the driving license'
+    )
     status = models.CharField(max_length=16, choices=DriverStatus.choices, default=DriverStatus.AVAILABLE)
 
     class Meta:

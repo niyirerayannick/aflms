@@ -17,5 +17,5 @@ class TripAdmin(admin.ModelAdmin):
         "profit",
     )
     list_filter = ("status", "commodity_type")
-    search_fields = ("order_number", "customer__name", "vehicle__plate_number", "driver__name")
+    search_fields = ("order_number", "customer__company_name", "vehicle__plate_number", "driver__name")
     autocomplete_fields = ("customer", "commodity_type", "route", "vehicle", "driver")

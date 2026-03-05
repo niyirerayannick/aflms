@@ -1,0 +1,489 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} | ATMS{% endblock %}
+
+{% block extra_head %}
+<style>
+    .color-preview {
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        margin-right: 8px;
+        vertical-align: middle;
+        border: 1px solid #e5e7eb;
+    }
+    .color-blue { background-color: #3b82f6; }
+    .color-green { background-color: #10b981; }
+    .color-purple { background-color: #8b5cf6; }
+    .color-red { background-color: #ef4444; }
+    .color-orange { background-color: #f97316; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">{{ page_title }}</h1>
+                <p class="mt-2 text-sm text-gray-600">Configure system appearance, currency and localization settings</p>
+            </div>
+            <a href="{% url 'accounts:user-list' %}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="mr-2 -ml-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                Manage Users
+            </a>
+        </div>
+    </div>
+
+    <!-- Settings Form -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <form method="post" enctype="multipart/form-data" class="space-y-6 p-6">
+            {% csrf_token %}
+            
+            <!-- Form Errors -->
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <!-- Company Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Company Information</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Company Name -->
+                    <div class="lg:col-span-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.company_name.label }}
+                            {% if form.company_name.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.company_name }}
+                        {% if form.company_name.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.company_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Company Logo -->
+                    <div class="lg:col-span-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.company_logo.label }}
+                        </label>
+                        {{ form.company_logo }}
+                        {% if form.company_logo.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.company_logo.errors.0 }}</p>
+                        {% endif %}
+                        {% if settings.company_logo %}
+                        <p class="mt-2 text-sm text-gray-500">Current: <a href="{{ settings.company_logo.url }}" target="_blank" class="text-blue-600 hover:underline">View current logo</a></p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appearance Settings -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Appearance</h3>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.primary_color.label }}
+                        {% if form.primary_color.field.required %}<span class="text-red-500">*</span>{% endif %}
+                    </label>
+                    <div class="mt-1 space-y-2">
+                        {% for value, label in form.primary_color.field.choices %}
+                        <div class="flex items-center">
+                            <input type="radio" name="{{ form.primary_color.name }}" 
+                                   value="{{ value }}" 
+                                   id="id_{{ form.primary_color.name }}_{{ forloop.counter0 }}"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                   {% if form.primary_color.value == value %}checked{% endif %}>
+                            <label for="id_{{ form.primary_color.name }}_{{ forloop.counter0 }}" 
+                                   class="ml-3 flex items-center text-sm font-medium text-gray-900">
+                                <span class="color-preview color-{{ value|lower }}"></span>
+                                {{ label }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if form.primary_color.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.primary_color.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Financial Settings -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Financial Settings</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Currency -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.currency.label }}
+                            {% if form.currency.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.currency }}
+                        {% if form.currency.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.currency.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.currency.help_text %}
+                        <p class="mt-2 text-sm text-gray-500">{{ form.currency.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Currency Symbol -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.currency_symbol.label }}
+                            {% if form.currency_symbol.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.currency_symbol }}
+                        {% if form.currency_symbol.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.currency_symbol.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Exchange Rates -->
+            <div class="border-b border-gray-200 pb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Live Exchange Rates</h3>
+                    <div class="flex items-center space-x-3">
+                        <span id="rates-status" class="text-xs text-gray-400"></span>
+                        <button type="button" id="refresh-rates-btn" onclick="fetchExchangeRates()" 
+                                class="inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md text-xs font-medium text-gray-600 bg-white hover:bg-gray-50 focus:outline-none">
+                            <svg id="refresh-icon" class="mr-1.5 h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Rate Cards -->
+                <div id="rates-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <div id="rates-loading" class="col-span-full flex items-center justify-center py-8 text-gray-400">
+                        <svg class="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        Loading exchange rates...
+                    </div>
+                </div>
+
+                <!-- Currency Converter -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">Quick Currency Converter</h4>
+                    <div class="flex flex-wrap items-end gap-3">
+                        <div class="flex-1 min-w-[120px]">
+                            <label class="block text-xs text-gray-500 mb-1">Amount</label>
+                            <input type="number" id="convert-amount" value="1000" min="0" step="any"
+                                   class="w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="w-28">
+                            <label class="block text-xs text-gray-500 mb-1">From</label>
+                            <select id="convert-from" class="w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="USD">USD</option>
+                                <option value="RWF">RWF</option>
+                                <option value="EUR">EUR</option>
+                                <option value="GBP">GBP</option>
+                                <option value="KES">KES</option>
+                                <option value="UGX">UGX</option>
+                                <option value="TZS">TZS</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center pt-4">
+                            <button type="button" onclick="swapCurrencies()" class="p-1.5 rounded-full hover:bg-gray-200 text-gray-500" title="Swap currencies">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="w-28">
+                            <label class="block text-xs text-gray-500 mb-1">To</label>
+                            <select id="convert-to" class="w-full rounded-md border-gray-300 shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option value="RWF">RWF</option>
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                                <option value="GBP">GBP</option>
+                                <option value="KES">KES</option>
+                                <option value="UGX">UGX</option>
+                                <option value="TZS">TZS</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 min-w-[140px]">
+                            <label class="block text-xs text-gray-500 mb-1">Result</label>
+                            <div id="convert-result" class="w-full rounded-md bg-white border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-900 min-h-[38px] flex items-center">
+                                —
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Localization Settings -->
+            <div class="pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Localization Settings</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Timezone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.timezone_setting.label }}
+                            {% if form.timezone_setting.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.timezone_setting }}
+                        {% if form.timezone_setting.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.timezone_setting.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Date Format -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.date_format.label }}
+                            {% if form.date_format.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.date_format }}
+                        {% if form.date_format.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.date_format.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Language -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ form.language.label }}
+                            {% if form.language.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.language }}
+                        {% if form.language.errors %}
+                        <p class="mt-2 text-sm text-red-600">{{ form.language.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Settings Preview -->
+            <div class="bg-gray-50 p-6 rounded-lg">
+                <h4 class="text-md font-medium text-gray-900 mb-3">Current Settings Preview</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="font-medium">Theme:</span>
+                        <span class="ml-2">
+                            <span class="color-preview color-{{ settings.primary_color|lower }}"></span>
+                            {{ settings.get_primary_color_display }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="font-medium">Currency:</span>
+                        <span class="ml-2">{{ settings.get_currency_display }} ({{ settings.currency_symbol }})</span>
+                    </div>
+                    <div>
+                        <span class="font-medium">Date Format:</span>
+                        <span class="ml-2">{{ settings.get_date_format_display }}</span>
+                    </div>
+                    <div>
+                        <span class="font-medium">Language:</span>
+                        <span class="ml-2">{{ settings.get_language_display }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                <a href="{% url 'accounts:user-list' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg class="mr-2 -ml-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Save Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// ---- Exchange Rate State ----
+let cachedRates = {};
+
+const currencySymbols = {
+    'USD': '$', 'EUR': '€', 'GBP': '£',
+    'RWF': 'FRw', 'KES': 'KSh', 'UGX': 'USh', 'TZS': 'TSh'
+};
+
+const currencyDecimals = {
+    'USD': 2, 'EUR': 2, 'GBP': 2,
+    'RWF': 0, 'KES': 2, 'UGX': 0, 'TZS': 0
+};
+
+function formatRate(value, code) {
+    const decimals = currencyDecimals[code] !== undefined ? currencyDecimals[code] : 2;
+    const sym = currencySymbols[code] || code;
+    return sym + ' ' + Number(value).toLocaleString(undefined, {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+    });
+}
+
+async function fetchExchangeRates() {
+    const statusEl = document.getElementById('rates-status');
+    const gridEl = document.getElementById('rates-grid');
+    const refreshBtn = document.getElementById('refresh-rates-btn');
+    const refreshIcon = document.getElementById('refresh-icon');
+
+    // Show loading
+    refreshBtn.disabled = true;
+    refreshIcon.classList.add('animate-spin');
+    statusEl.textContent = 'Updating...';
+
+    try {
+        const baseCurrency = document.getElementById('id_currency').value || 'USD';
+        const response = await fetch(`{% url 'accounts:exchange-rates' %}?base=${baseCurrency}`);
+        const data = await response.json();
+
+        if (data.success) {
+            cachedRates = data.rates;
+
+            // Build rate cards
+            let html = '';
+            for (const [code, info] of Object.entries(data.rates)) {
+                if (code === baseCurrency) continue;
+                const sym = info.symbol || currencySymbols[code] || code;
+                const rate = Number(info.rate);
+                const decimals = info.decimals !== undefined ? info.decimals : 2;
+                const displayRate = rate.toLocaleString(undefined, {
+                    minimumFractionDigits: Math.min(decimals, 4),
+                    maximumFractionDigits: 4
+                });
+                html += `
+                <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-sm font-semibold text-gray-800">${code}</span>
+                        <span class="text-xs text-gray-400">${sym}</span>
+                    </div>
+                    <div class="text-lg font-bold text-blue-600">${displayRate}</div>
+                    <div class="text-xs text-gray-400 mt-1">1 ${baseCurrency} = ${displayRate} ${code}</div>
+                </div>`;
+            }
+            gridEl.innerHTML = html || '<div class="col-span-full text-center text-gray-400 py-4">No rates available</div>';
+            statusEl.textContent = 'Updated ' + new Date().toLocaleTimeString();
+
+            // Auto-run converter
+            convertCurrency();
+        } else {
+            gridEl.innerHTML = '<div class="col-span-full text-center text-red-400 py-4">Failed to load rates. Try again.</div>';
+            statusEl.textContent = 'Error';
+        }
+    } catch (err) {
+        console.error('Exchange rate fetch error:', err);
+        gridEl.innerHTML = '<div class="col-span-full text-center text-red-400 py-4">Network error. Check your connection.</div>';
+        statusEl.textContent = 'Error';
+    } finally {
+        refreshBtn.disabled = false;
+        refreshIcon.classList.remove('animate-spin');
+    }
+}
+
+function convertCurrency() {
+    const amount = parseFloat(document.getElementById('convert-amount').value) || 0;
+    const from = document.getElementById('convert-from').value;
+    const to = document.getElementById('convert-to').value;
+    const resultEl = document.getElementById('convert-result');
+
+    if (from === to) {
+        resultEl.textContent = formatRate(amount, to);
+        return;
+    }
+
+    // Both rates are relative to the current base
+    const fromRate = cachedRates[from] ? cachedRates[from].rate : null;
+    const toRate = cachedRates[to] ? cachedRates[to].rate : null;
+
+    if (fromRate !== null && toRate !== null) {
+        const converted = (amount / fromRate) * toRate;
+        resultEl.textContent = formatRate(converted, to);
+    } else if (fromRate === null && toRate !== null) {
+        // from IS the base
+        const converted = amount * toRate;
+        resultEl.textContent = formatRate(converted, to);
+    } else if (fromRate !== null && toRate === null) {
+        // to IS the base
+        const converted = amount / fromRate;
+        resultEl.textContent = formatRate(converted, to);
+    } else {
+        resultEl.textContent = '—';
+    }
+}
+
+function swapCurrencies() {
+    const fromEl = document.getElementById('convert-from');
+    const toEl = document.getElementById('convert-to');
+    const tmp = fromEl.value;
+    fromEl.value = toEl.value;
+    toEl.value = tmp;
+    convertCurrency();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Currency and symbol synchronization
+    const currencySelect = document.getElementById('id_currency');
+    const symbolInput = document.getElementById('id_currency_symbol');
+    
+    if (currencySelect && symbolInput) {
+        currencySelect.addEventListener('change', function() {
+            const selectedCurrency = this.value;
+            if (currencySymbols[selectedCurrency]) {
+                symbolInput.value = currencySymbols[selectedCurrency];
+            }
+            // Re-fetch rates when base currency changes
+            fetchExchangeRates();
+        });
+    }
+
+    // Converter event listeners
+    document.getElementById('convert-amount').addEventListener('input', convertCurrency);
+    document.getElementById('convert-from').addEventListener('change', convertCurrency);
+    document.getElementById('convert-to').addEventListener('change', convertCurrency);
+    
+    // Form validation
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let hasErrors = false;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    hasErrors = true;
+                    field.classList.add('border-red-300');
+                } else {
+                    field.classList.remove('border-red-300');
+                }
+            });
+
+            if (hasErrors) {
+                e.preventDefault();
+                const firstError = form.querySelector('.border-red-300');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }
+        });
+    }
+
+    // Fetch rates on page load
+    fetchExchangeRates();
+});
+</script>
+{% endblock %}

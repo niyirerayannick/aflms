@@ -14,7 +14,8 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv())  # noqa: F405
 CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", cast=Csv())  # noqa: F405
 
 DATABASE_URL = config("DATABASE_URL")
-DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)}  # noqa: F405
+_db_ssl = config("DATABASE_SSL_REQUIRE", default=False, cast=bool)
+DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=_db_ssl)}  # noqa: F405
 
 SECURE_SSL_REDIRECT = config("SECURE_SSL_REDIRECT", default=True, cast=bool)
 SESSION_COOKIE_SECURE = config("SESSION_COOKIE_SECURE", default=True, cast=bool)

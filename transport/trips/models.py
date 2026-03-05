@@ -16,6 +16,9 @@ class Trip(TimeStampedModel):
         IN_TRANSIT = "IN_TRANSIT", "In Transit"
         DELIVERED = "DELIVERED", "Delivered"
         CLOSED = "CLOSED", "Closed"
+    
+    # Backward compatibility property
+    STATUS_CHOICES = TripStatus.choices
 
     order_number = models.CharField(max_length=40, unique=True, blank=True)
     customer = models.ForeignKey("atms_customers.Customer", on_delete=models.PROTECT, related_name="trips")
@@ -23,6 +26,15 @@ class Trip(TimeStampedModel):
     route = models.ForeignKey("atms_routes.Route", on_delete=models.PROTECT, related_name="trips")
     vehicle = models.ForeignKey("atms_vehicles.Vehicle", on_delete=models.PROTECT, related_name="trips")
     driver = models.ForeignKey("atms_drivers.Driver", on_delete=models.PROTECT, related_name="trips")
+
+    quantity = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0,
+        help_text="Quantity of commodity (liters for Fuel, kg for Goods)",
+    )
+    quantity_unit = models.CharField(
+        max_length=16, blank=True, default="",
+        help_text="Auto-set: liters for Fuel, kg for Goods",
+    )
 
     km_start = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     km_end = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -102,5 +114,12 @@ class Trip(TimeStampedModel):
             date_prefix = timezone.now().strftime("%Y%m%d")
             seed = Trip.objects.filter(order_number__startswith=f"ATMS-{date_prefix}").count() + 1
             self.order_number = f"ATMS-{date_prefix}-{seed:04d}"
+        # Auto-set quantity_unit from commodity_type
+        if self.commodity_type_id:
+            try:
+                code = self.commodity_type.code
+            except Exception:
+                code = ""
+            self.quantity_unit = "liters" if code == "FUEL" else "kg"
         self.recalculate_financials()
         super().save(*args, **kwargs)

@@ -1,9 +1,19 @@
 from django.urls import path
-from transport.analytics.views import VehicleListView
+from . import views
+
+app_name = 'vehicles'
 
 # Vehicle management endpoints
 urlpatterns = [
-    path("", VehicleListView.as_view(), name="transport-vehicles-list"),
-    # path("<int:pk>/", VehicleDetailView.as_view(), name="transport-vehicle-detail"),
-    # Add more vehicle endpoints as needed
+    path("", views.VehicleListView.as_view(), name="list"),
+    path("create/", views.VehicleCreateView.as_view(), name="create"),
+    path("<int:pk>/", views.VehicleDetailView.as_view(), name="detail"),
+    path("<int:pk>/edit/", views.VehicleUpdateView.as_view(), name="edit"),
+    path("<int:vehicle_id>/status/", views.vehicle_quick_status, name="status-update"),
+    
+    # Additional vehicle-specific routes  
+    path("<int:pk>/history/", views.VehicleDetailView.as_view(), name="history"),
+    path("<int:pk>/maintenance/", views.VehicleDetailView.as_view(), name="maintenance-history"),
+    path("<int:pk>/fuel/", views.VehicleDetailView.as_view(), name="fuel-history"),
+    path("<int:pk>/trips/", views.VehicleDetailView.as_view(), name="trip-history"),
 ]

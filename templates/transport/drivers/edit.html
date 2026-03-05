@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ driver.name }} | ATMS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{% url 'transport:drivers:detail' driver.pk %}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
+            <svg class="-ml-1 mr-1 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            Back to Driver Details
+        </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Edit {{ driver.name }}</h1>
+        <p class="mt-2 text-sm text-gray-600">Update the driver's information</p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow rounded-lg">
+        <form method="post" enctype="multipart/form-data" class="space-y-6 px-6 py-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc space-y-1 pl-5">
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Section: Personal Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <svg class="inline w-5 h-5 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    Personal Information
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Name -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.name.label }}
+                            {% if form.name.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.email.label }}
+                            <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.phone.label }}
+                            {% if form.phone.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.status.label }}
+                            {% if form.status.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: License Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <svg class="inline w-5 h-5 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    License Information
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- License Number -->
+                    <div>
+                        <label for="{{ form.license_number.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.license_number.label }}
+                            {% if form.license_number.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.license_number }}
+                        {% if form.license_number.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.license_number.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- License Category -->
+                    <div>
+                        <label for="{{ form.license_category.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.license_category.label }}
+                            {% if form.license_category.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.license_category }}
+                        {% if form.license_category.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.license_category.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">
+                            A = Motorcycles, B1 = Light, B = Standard, C = Heavy, D1 = Minibuses, D = Buses, E = Trailers, F = Special
+                        </p>
+                    </div>
+
+                    <!-- License Expiry -->
+                    <div>
+                        <label for="{{ form.license_expiry.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.license_expiry.label }}
+                            {% if form.license_expiry.field.required %}<span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        {{ form.license_expiry }}
+                        {% if form.license_expiry.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.license_expiry.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">Current expiry: {{ driver.license_expiry|date:"M j, Y" }}</p>
+                    </div>
+
+                    <!-- License Photo -->
+                    <div>
+                        <label for="{{ form.license_photo.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.license_photo.label }}
+                        </label>
+                        {{ form.license_photo }}
+                        {% if form.license_photo.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.license_photo.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500">Upload front photo of the driving license (JPG, PNG)</p>
+                    </div>
+
+                    <!-- Current / Preview License Photo -->
+                    <div class="md:col-span-2">
+                        {% if driver.license_photo %}
+                        <div class="mb-4">
+                            <p class="block text-sm font-medium text-gray-700 mb-2">Current License Photo</p>
+                            <div class="border border-gray-200 rounded-lg p-3 inline-block">
+                                <img src="{{ driver.license_photo.url }}" class="max-h-48 rounded-md" alt="Current license photo">
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div id="license-preview-container" style="display:none;">
+                            <p class="block text-sm font-medium text-gray-700 mb-2">New License Photo Preview</p>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center">
+                                <img id="license-preview" class="max-h-48 rounded-md" src="" alt="License preview">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Linked Account Info -->
+            {% if driver.user %}
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-green-800">
+                        Linked to account: {{ driver.user.email }}
+                    </span>
+                </div>
+            </div>
+            {% else %}
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-yellow-800">
+                        No login account linked to this driver
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                <a href="{% url 'transport:drivers:detail' driver.pk %}" class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    Update Driver
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Delete Section -->
+    {% if request.user.role == 'superadmin' %}
+    <div class="mt-8 bg-white shadow rounded-lg border border-red-200">
+        <div class="px-6 py-4 border-b border-red-200">
+            <h3 class="text-lg leading-6 font-medium text-red-900">Danger Zone</h3>
+            <p class="mt-1 text-sm text-red-700">Permanently delete this driver. This action cannot be undone.</p>
+        </div>
+        <div class="px-6 py-4">
+            <button type="button" onclick="confirmDelete()" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                Delete Driver
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // License photo preview
+    const licenseInput = document.getElementById('id_license_photo');
+    const previewContainer = document.getElementById('license-preview-container');
+    const previewImg = document.getElementById('license-preview');
+    
+    if (licenseInput) {
+        licenseInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    previewImg.src = ev.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        });
+    }
+    
+    // Auto-uppercase license number
+    const licenseNumberInput = document.getElementById('id_license_number');
+    if (licenseNumberInput) {
+        licenseNumberInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    }
+
+    {% if request.user.role == 'superadmin' %}
+    window.confirmDelete = function() {
+        if (confirm('Are you sure you want to delete {{ driver.name }}? This action cannot be undone.')) {
+            alert('Delete functionality will be implemented when needed');
+        }
+    };
+    {% endif %}
+});
+</script>
+{% endblock %}

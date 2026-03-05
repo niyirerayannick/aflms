@@ -14,6 +14,9 @@ from .views import (
 app_name = "analytics"
 
 urlpatterns = [
+    # Root analytics page (redirect to dashboard)
+    path("", dashboard_view, name="overview"),
+    
     # Main dashboards
     path("dashboard/", dashboard_view, name="dashboard"),
     path("api/dashboard/", dashboard_api, name="dashboard-api"),

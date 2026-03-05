@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Trip | ATMS{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{% url 'transport:trips:list' %}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
+            <svg class="-ml-1 mr-1 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            Back to Trips
+        </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Create New Trip</h1>
+        <p class="mt-2 text-sm text-gray-600">Fill in the trip details. An order number will be generated automatically.</p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow rounded-lg">
+        <form method="post" class="space-y-6 px-6 py-6">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Please correct the following errors:</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc space-y-1 pl-5">
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Section: Trip Assignment -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <svg class="inline w-5 h-5 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    Trip Assignment
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Customer -->
+                    <div>
+                        <label for="{{ form.customer.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.customer.label }} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.customer }}
+                        {% if form.customer.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.customer.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.customer.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.customer.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Commodity Type -->
+                    <div>
+                        <label for="{{ form.commodity_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.commodity_type.label }} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.commodity_type }}
+                        {% if form.commodity_type.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.commodity_type.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.commodity_type.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.commodity_type.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Quantity -->
+                    <div>
+                        <label for="id_quantity" class="block text-sm font-medium text-gray-700">
+                            Quantity <span id="quantity-unit-label" class="text-gray-400">(select commodity type)</span>
+                        </label>
+                        {{ form.quantity }}
+                        {% if form.quantity.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.quantity.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-1 text-xs text-gray-500" id="quantity-help">Liters for Fuel, kg for Goods</p>
+                    </div>
+
+                    <!-- Route -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.route.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.route.label }} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.route }}
+                        {% if form.route.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.route.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.route.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.route.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Vehicle -->
+                    <div>
+                        <label for="{{ form.vehicle.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.vehicle.label }} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.vehicle }}
+                        {% if form.vehicle.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.vehicle.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.vehicle.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.vehicle.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Driver -->
+                    <div>
+                        <label for="{{ form.driver.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.driver.label }} <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.driver }}
+                        {% if form.driver.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.driver.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.driver.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.driver.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Status -->
+                    <div>
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.status.label }}
+                        </label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Odometer & Fuel -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <svg class="inline w-5 h-5 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    Odometer & Fuel
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- KM Start -->
+                    <div>
+                        <label for="{{ form.km_start.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.km_start.label }}
+                        </label>
+                        {{ form.km_start }}
+                        {% if form.km_start.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.km_start.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.km_start.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.km_start.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- KM End -->
+                    <div>
+                        <label for="{{ form.km_end.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.km_end.label }}
+                        </label>
+                        {{ form.km_end }}
+                        {% if form.km_end.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.km_end.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.km_end.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.km_end.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Fuel Issued -->
+                    <div>
+                        <label for="{{ form.fuel_issued.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.fuel_issued.label }}
+                        </label>
+                        {{ form.fuel_issued }}
+                        {% if form.fuel_issued.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.fuel_issued.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.fuel_issued.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.fuel_issued.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Fuel Cost -->
+                    <div>
+                        <label for="{{ form.fuel_cost.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.fuel_cost.label }}
+                        </label>
+                        {{ form.fuel_cost }}
+                        {% if form.fuel_cost.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.fuel_cost.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.fuel_cost.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.fuel_cost.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Financials -->
+            <div class="pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <svg class="inline w-5 h-5 mr-1 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    Financials
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Other Expenses -->
+                    <div>
+                        <label for="{{ form.other_expenses.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.other_expenses.label }}
+                        </label>
+                        {{ form.other_expenses }}
+                        {% if form.other_expenses.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.other_expenses.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.other_expenses.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.other_expenses.help_text }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Revenue -->
+                    <div>
+                        <label for="{{ form.revenue.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                            {{ form.revenue.label }}
+                        </label>
+                        {{ form.revenue }}
+                        {% if form.revenue.errors %}
+                            <p class="mt-2 text-sm text-red-600">{{ form.revenue.errors.0 }}</p>
+                        {% endif %}
+                        {% if form.revenue.help_text %}
+                            <p class="mt-1 text-xs text-gray-500">{{ form.revenue.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <a href="{% url 'transport:trips:list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create Trip
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const commoditySelect = document.getElementById('id_commodity_type');
+    const unitLabel = document.getElementById('quantity-unit-label');
+    const quantityInput = document.getElementById('id_quantity');
+
+    function updateUnit() {
+        const selectedText = commoditySelect.options[commoditySelect.selectedIndex]?.text || '';
+        if (selectedText.toLowerCase().includes('fuel')) {
+            unitLabel.textContent = '(liters)';
+            quantityInput.placeholder = 'e.g. 33000';
+        } else if (selectedText.toLowerCase().includes('good')) {
+            unitLabel.textContent = '(kg)';
+            quantityInput.placeholder = 'e.g. 5000';
+        } else {
+            unitLabel.textContent = '(select commodity type)';
+            quantityInput.placeholder = '0.00';
+        }
+    }
+
+    if (commoditySelect) {
+        commoditySelect.addEventListener('change', updateUnit);
+        updateUnit();
+    }
+});
+</script>
+{% endblock %}

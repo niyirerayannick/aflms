@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_DB: aflms
       POSTGRES_USER: aflms
@@ -9,46 +10,79 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aflms -d aflms"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
+    restart: unless-stopped
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
-    command: gunicorn aflms.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    restart: unless-stopped
     env_file:
       - .env
+    environment:
+      DATABASE_URL: postgres://aflms:aflms@db:5432/aflms
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
     volumes:
-      - .:/app
+      - static_data:/app/staticfiles
+      - media_data:/app/media
     ports:
       - "8000:8000"
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   celery_worker:
     build: .
+    restart: unless-stopped
     command: celery -A aflms worker -l info
     env_file:
       - .env
-    volumes:
-      - .:/app
+    environment:
+      DATABASE_URL: postgres://aflms:aflms@db:5432/aflms
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   celery_beat:
     build: .
+    restart: unless-stopped
     command: celery -A aflms beat -l info
     env_file:
       - .env
-    volumes:
-      - .:/app
+    environment:
+      DATABASE_URL: postgres://aflms:aflms@db:5432/aflms
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+  static_data:
+  media_data:

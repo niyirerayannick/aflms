@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .forms import UserCreationForm, UserUpdateForm
-from .models import User, UserProfile
+from .models import User, UserProfile, ActivityLog, RolePermission, SystemSettings
 
 
 @admin.register(User)
@@ -78,3 +78,40 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("user", "national_id", "license_number", "emergency_contact")
     search_fields = ("user__email", "user__full_name", "national_id", "license_number")
     list_select_related = ("user",)
+
+
+@admin.register(ActivityLog)
+class ActivityLogAdmin(admin.ModelAdmin):
+    list_display = ("user", "action", "description", "ip_address", "created_at")
+    list_filter = ("action", "created_at")
+    search_fields = ("user__email", "user__full_name", "description")
+    readonly_fields = ("created_at",)
+    date_hierarchy = "created_at"
+
+
+@admin.register(RolePermission)
+class RolePermissionAdmin(admin.ModelAdmin):
+    list_display = ("role", "permission", "granted_by", "granted_at")
+    list_filter = ("role", "granted_at")
+    search_fields = ("role", "permission__name")
+
+
+@admin.register(SystemSettings)
+class SystemSettingsAdmin(admin.ModelAdmin):
+    list_display = ("company_name", "primary_color", "currency", "updated_by", "updated_at")
+    readonly_fields = ("created_at", "updated_at")
+    fieldsets = (
+        ("Company Information", {
+            "fields": ("company_name", "company_logo")
+        }),
+        ("Appearance", {
+            "fields": ("primary_color",)
+        }),
+        ("Localization", {
+            "fields": ("currency", "currency_symbol", "timezone_setting", "date_format", "language")
+        }),
+        ("System Info", {
+            "fields": ("updated_by", "created_at", "updated_at"),
+            "classes": ("collapse",)
+        })
+    )

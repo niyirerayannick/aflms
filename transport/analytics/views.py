@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 
-from transport.analytics.services import executive_dashboard_metrics
+from transport.analytics.services import executive_dashboard_metrics, full_dashboard_context
 from transport.vehicles.models import Vehicle
 from transport.drivers.models import Driver
 from transport.trips.models import Trip
@@ -23,24 +23,10 @@ class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 def dashboard_view(request):
     """Main ATMS dashboard showing key metrics and recent activity"""
     if request.user.role not in ['superadmin', 'admin', 'manager']:
-        # Redirect drivers and clients to their specific dashboards
         return render(request, 'transport/access_denied.html')
     
-    # Get executive metrics
-    metrics = executive_dashboard_metrics()
-    
-    # Get recent activity
-    recent_trips = Trip.objects.select_related('customer', 'vehicle', 'driver').order_by('-created_at')[:10]
-    vehicles_needing_maintenance = Vehicle.objects.filter(
-        status=Vehicle.VehicleStatus.MAINTENANCE
-    ).order_by('next_service_km')[:5]
-    
-    context = {
-        'metrics': metrics,
-        'recent_trips': recent_trips,
-        'vehicles_needing_maintenance': vehicles_needing_maintenance,
-        'page_title': 'Transport Dashboard'
-    }
+    context = full_dashboard_context()
+    context['page_title'] = 'System Overview'
     
     return render(request, 'transport/dashboard.html', context)
 

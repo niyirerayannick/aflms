@@ -1,9 +1,19 @@
 from django.urls import path
+from . import views
 
-# Transport.drivers will provide driver management endpoints
-# These can be expanded with actual views later
+app_name = 'drivers'
+
+# Driver management endpoints
 urlpatterns = [
-    # path("", DriverListView.as_view(), name="transport-drivers-list"),
-    # path("<int:pk>/", DriverDetailView.as_view(), name="transport-driver-detail"),
-    # Add more driver endpoints as needed
+    path("", views.DriverListView.as_view(), name="list"),
+    path("create/", views.DriverCreateView.as_view(), name="create"),
+    path("<int:pk>/", views.DriverDetailView.as_view(), name="detail"),
+    path("<int:pk>/edit/", views.DriverUpdateView.as_view(), name="edit"),
+    path("<int:driver_id>/status/", views.driver_quick_status, name="status-update"),
+    
+    # Driver-specific routes
+    path("<int:pk>/trips/", views.DriverDetailView.as_view(), name="trip-history"),
+    path("<int:pk>/performance/", views.DriverDetailView.as_view(), name="performance"),
+    path("<int:pk>/documents/", views.DriverDetailView.as_view(), name="documents"),
+    path("license-alerts/", views.DriverListView.as_view(), name="license-alerts"),
 ]

@@ -11,8 +11,20 @@ class Vehicle(TimeStampedModel):
         ASSIGNED = "ASSIGNED", "Assigned"
         MAINTENANCE = "MAINTENANCE", "Maintenance"
 
+    class VehicleType(models.TextChoices):
+        TRUCK = "TRUCK", "Truck"
+        TANKER = "TANKER", "Tanker"
+        TRAILER = "TRAILER", "Trailer"
+        PICKUP = "PICKUP", "Pickup"
+        VAN = "VAN", "Van"
+        FLATBED = "FLATBED", "Flatbed"
+
+    # Backward compatibility property
+    STATUS_CHOICES = VehicleStatus.choices
+    VEHICLE_TYPE_CHOICES = VehicleType.choices
+
     plate_number = models.CharField(max_length=40, unique=True)
-    vehicle_type = models.CharField(max_length=60)
+    vehicle_type = models.CharField(max_length=60, choices=VehicleType.choices, default=VehicleType.TRUCK)
     capacity = models.DecimalField(max_digits=12, decimal_places=2)
     current_odometer = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=16, choices=VehicleStatus.choices, default=VehicleStatus.AVAILABLE)
