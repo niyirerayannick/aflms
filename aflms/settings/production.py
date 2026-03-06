@@ -116,3 +116,21 @@ LOGGING = {
         "channels": {"handlers": ["console"], "level": "INFO", "propagate": False},
     },
 }
+
+# Email configuration (read from environment variables in production).
+# Set EMAIL_HOST_USER and EMAIL_HOST_PASSWORD in Coolify / environment secrets.
+from decouple import config as _config
+
+EMAIL_HOST = _config("EMAIL_HOST", default="smtp.gmail.com")
+EMAIL_PORT = _config("EMAIL_PORT", default=587, cast=int)
+EMAIL_USE_TLS = _config("EMAIL_USE_TLS", default=True, cast=bool)
+EMAIL_HOST_USER = _config("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = _config("EMAIL_HOST_PASSWORD", default="")
+
+if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    DEFAULT_FROM_EMAIL = _config("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
+else:
+    # fallback to console backend so the app still boots without secrets
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
