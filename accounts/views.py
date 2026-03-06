@@ -148,6 +148,13 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             status=400,
         )
 
+    from django.views.generic import TemplateView
+
+    # Custom password reset confirmation view
+    class CustomPasswordResetDoneView(TemplateView):
+        template_name = "accounts/password_reset_done.html"
+
+
 
 class UserListView(AdminMixin, ListView):
     model = User
