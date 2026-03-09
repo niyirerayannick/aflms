@@ -37,3 +37,18 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Twilio status callback via ngrok
 TWILIO_STATUS_CALLBACK_URL = "https://poor-arlette-unnettled.ngrok-free.dev/api/whatsapp/status/"
+
+# Use Local Memory Cache for development to avoid Redis dependency
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
+}
+
+# Use In-Memory Channel Layer for development
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}

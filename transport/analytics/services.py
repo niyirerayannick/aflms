@@ -207,7 +207,15 @@ def full_dashboard_context():
     recent_fuel = FuelEntry.objects.select_related("trip", "station").order_by("-date")[:5]
     recent_payments = Payment.objects.select_related("trip").order_by("-payment_date")[:5]
 
+    # ── 16. Driver Leaderboard ────────────────────────────────────────
+    top_drivers = list(
+        Driver.objects.select_related("user")
+        .annotate(trips_count=Count("trips", filter=Q(trips__status=Trip.TripStatus.DELIVERED)))
+        .order_by("-trips_count")[:5]
+    )
+
     return {
+        "top_drivers": top_drivers,
         # Core KPIs
         "metrics": metrics,
         # Entity totals

@@ -19,14 +19,35 @@ class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         ]
 
 
+from django.core.cache import cache
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+
 @login_required
 def dashboard_view(request):
     """Main ATMS dashboard showing key metrics and recent activity"""
     if request.user.role not in ['superadmin', 'admin', 'manager']:
         return render(request, 'transport/access_denied.html')
     
-    context = full_dashboard_context()
-    context['page_title'] = 'System Overview'
+    # Try to get context from cache for performance
+    cache_key = f'dashboard_context_{request.user.role}'
+    try:
+        context = cache.get(cache_key)
+    except Exception:
+        # Fallback if cache backend is down
+        context = None
+    
+    if not context:
+        context = full_dashboard_context()
+        try:
+            # Cache for 5 minutes
+            cache.set(cache_key, context, 300)
+        except Exception:
+            # Ignore cache write errors
+            pass
+    
+    context['page_title'] = 'Dashboard'
+    context['page_subtitle'] = 'Fleet Performance & Financial Overview'
     
     return render(request, 'transport/dashboard.html', context)
 
