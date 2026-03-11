@@ -2,28 +2,39 @@
 
 {% block title %}Create New Trip | ATMS{% endblock %}
 
+{% block extra_head %}
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body, .roboto {
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+    </style>
+{% endblock %}
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-8xl mx-auto px-2 sm:px-8 lg:px-16 py-10 roboto">
 
     <!-- Back Button -->
     <div class="mb-6">
-        <a href="{% url 'transport:trips:list' %}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-700">
-            <svg class="-ml-1 mr-1 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-            </svg>
+        <a href="{% url 'transport:trips:list' %}" class="inline-flex items-center text-sm font-medium text-green-700 hover:text-green-900">
+            <span class="material-icons mr-2">arrow_back</span>
             Back to Trips
         </a>
     </div>
 
     <!-- Page Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">Create New Trip</h1>
+        <h1 class="text-3xl font-bold text-green-700 flex items-center">
+            <span class="material-icons mr-2 text-green-600">local_shipping</span>
+            Create New Trip
+        </h1>
         <p class="mt-2 text-sm text-gray-600">Fill in the trip details. An order number will be generated automatically.</p>
     </div>
 
     <!-- Form -->
-    <div class="bg-white shadow rounded-lg">
-        <form method="post" class="space-y-6 px-6 py-6">
+    <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-green-100">
+        <form method="post" class="space-y-8 p-8">
             {% csrf_token %}
 
             {% if form.non_field_errors %}
@@ -49,17 +60,15 @@
             {% endif %}
 
             <!-- Section: Trip Assignment -->
-            <div class="border-b border-gray-200 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    <svg class="inline w-5 h-5 mr-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                    </svg>
+            <div class="border-b border-green-200 pb-6">
+                <h3 class="text-lg font-medium text-green-700 mb-4 flex items-center">
+                    <span class="material-icons mr-2 text-green-600">assignment</span>
                     Trip Assignment
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <!-- Customer -->
                     <div>
-                        <label for="{{ form.customer.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.customer.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.customer.label }} <span class="text-red-500">*</span>
                         </label>
                         {{ form.customer }}
@@ -73,7 +82,7 @@
 
                     <!-- Commodity Type -->
                     <div>
-                        <label for="{{ form.commodity_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.commodity_type.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.commodity_type.label }} <span class="text-red-500">*</span>
                         </label>
                         {{ form.commodity_type }}
@@ -87,7 +96,7 @@
 
                     <!-- Quantity -->
                     <div>
-                        <label for="id_quantity" class="block text-sm font-medium text-gray-700">
+                        <label for="id_quantity" class="block text-sm font-medium text-green-700">
                             Quantity <span id="quantity-unit-label" class="text-gray-400">(select commodity type)</span>
                         </label>
                         {{ form.quantity }}
@@ -99,7 +108,7 @@
 
                     <!-- Route -->
                     <div class="md:col-span-2">
-                        <label for="{{ form.route.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.route.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.route.label }} <span class="text-red-500">*</span>
                         </label>
                         {{ form.route }}
@@ -113,7 +122,7 @@
 
                     <!-- Vehicle -->
                     <div>
-                        <label for="{{ form.vehicle.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.vehicle.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.vehicle.label }} <span class="text-red-500">*</span>
                         </label>
                         {{ form.vehicle }}
@@ -127,7 +136,7 @@
 
                     <!-- Driver -->
                     <div>
-                        <label for="{{ form.driver.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.driver.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.driver.label }} <span class="text-red-500">*</span>
                         </label>
                         {{ form.driver }}
@@ -141,7 +150,7 @@
 
                     <!-- Status -->
                     <div>
-                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.status.label }}
                         </label>
                         {{ form.status }}
@@ -153,17 +162,15 @@
             </div>
 
             <!-- Section: Odometer & Fuel -->
-            <div class="border-b border-gray-200 pb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    <svg class="inline w-5 h-5 mr-1 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
+            <div class="border-b border-green-200 pb-6">
+                <h3 class="text-lg font-medium text-green-700 mb-4 flex items-center">
+                    <span class="material-icons mr-2 text-green-600">speed</span>
                     Odometer & Fuel
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <!-- KM Start -->
                     <div>
-                        <label for="{{ form.km_start.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.km_start.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.km_start.label }}
                         </label>
                         {{ form.km_start }}
@@ -177,7 +184,7 @@
 
                     <!-- KM End -->
                     <div>
-                        <label for="{{ form.km_end.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.km_end.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.km_end.label }}
                         </label>
                         {{ form.km_end }}
@@ -191,7 +198,7 @@
 
                     <!-- Fuel Issued -->
                     <div>
-                        <label for="{{ form.fuel_issued.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.fuel_issued.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.fuel_issued.label }}
                         </label>
                         {{ form.fuel_issued }}
@@ -205,7 +212,7 @@
 
                     <!-- Fuel Cost -->
                     <div>
-                        <label for="{{ form.fuel_cost.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.fuel_cost.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.fuel_cost.label }}
                         </label>
                         {{ form.fuel_cost }}
@@ -221,16 +228,14 @@
 
             <!-- Section: Financials -->
             <div class="pb-6">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">
-                    <svg class="inline w-5 h-5 mr-1 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
+                <h3 class="text-lg font-medium text-green-700 mb-4 flex items-center">
+                    <span class="material-icons mr-2 text-green-600">attach_money</span>
                     Financials
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <!-- Other Expenses -->
                     <div>
-                        <label for="{{ form.other_expenses.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.other_expenses.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.other_expenses.label }}
                         </label>
                         {{ form.other_expenses }}
@@ -244,7 +249,7 @@
 
                     <!-- Revenue -->
                     <div>
-                        <label for="{{ form.revenue.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        <label for="{{ form.revenue.id_for_label }}" class="block text-sm font-medium text-green-700">
                             {{ form.revenue.label }}
                         </label>
                         {{ form.revenue }}
@@ -259,19 +264,34 @@
             </div>
 
             <!-- Form Actions -->
-            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                <a href="{% url 'transport:trips:list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50">
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-4 pt-6 border-t border-green-200">
+                <a href="{% url 'transport:trips:list' %}" class="inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm text-sm font-medium text-green-700 bg-white hover:bg-green-50 transition">
+                    <span class="material-icons mr-2">cancel</span>
                     Cancel
                 </a>
-                <button type="submit" class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
+                    <span class="material-icons mr-2">add_circle</span>
                     Create Trip
                 </button>
             </div>
         </form>
     </div>
+<style>
+    #id_customer, #id_commodity_type, #id_quantity, #id_route, #id_vehicle, #id_driver, #id_status, #id_km_start, #id_km_end, #id_fuel_issued, #id_fuel_cost, #id_other_expenses, #id_revenue {
+        width: 100%;
+        min-width: 220px;
+        max-width: 600px;
+        padding: 0.75rem 1rem;
+        font-size: 1.1rem;
+        border-radius: 0.75rem;
+        border: 1px solid #22c55e;
+        transition: box-shadow 0.2s;
+    }
+    #id_customer:focus, #id_commodity_type:focus, #id_quantity:focus, #id_route:focus, #id_vehicle:focus, #id_driver:focus, #id_status:focus, #id_km_start:focus, #id_km_end:focus, #id_fuel_issued:focus, #id_fuel_cost:focus, #id_other_expenses:focus, #id_revenue:focus {
+        box-shadow: 0 0 0 2px #22c55e33;
+        border-color: #16a34a;
+    }
+</style>
 </div>
 
 <script>

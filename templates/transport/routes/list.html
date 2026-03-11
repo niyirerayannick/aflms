@@ -17,7 +17,7 @@
                 <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                     Export
                 </a>
-                <a href="{% url 'transport:routes:create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                <a href="{% url 'transport:routes:create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700">
                     <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
@@ -134,7 +134,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
-                                            <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
+                                            <div class="h-10 w-10 rounded-full bg-green-500 flex items-center justify-center">
                                                 <svg class="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -143,7 +143,7 @@
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900">
-                                                <a href="{% url 'transport:routes:detail' route.pk %}" class="hover:text-blue-600">
+                                                <a href="{% url 'transport:routes:detail' route.pk %}" class="hover:text-green-600">
                                                     {{ route.origin }} → {{ route.destination }}
                                                 </a>
                                             </div>
@@ -173,7 +173,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex space-x-2">
                                         <a href="{% url 'transport:routes:detail' route.pk %}" 
-                                           class="text-blue-600 hover:text-blue-900">View</a>
+                                           class="text-green-600 hover:text-green-900">View</a>
                                         {% if request.user.role != 'driver' and request.user.role != 'client' %}
                                         <a href="{% url 'transport:routes:edit' route.pk %}" 
                                            class="text-gray-600 hover:text-gray-900">Edit</a>

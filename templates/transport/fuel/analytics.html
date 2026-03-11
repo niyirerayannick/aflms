@@ -39,8 +39,8 @@
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
-                    <div class="flex-shrink-0 bg-blue-100 rounded-md p-3">
-                        <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                         </svg>
                     </div>
@@ -254,7 +254,7 @@
                             <td class="px-3 py-2 text-sm text-gray-500">{{ forloop.counter }}</td>
                             <td class="px-3 py-2 text-sm font-medium text-gray-900">{{ v.trip__vehicle__plate_number|default:"—" }}</td>
                             <td class="px-3 py-2 text-sm text-gray-600">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
                                     {{ v.trip__vehicle__vehicle_type|default:"—" }}
                                 </span>
                             </td>
@@ -312,7 +312,7 @@
     <div class="bg-white shadow rounded-lg p-6">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold text-gray-900">Recent Fuel Entries</h3>
-            <a href="{% url 'transport:fuel:list' %}" class="text-sm text-blue-600 hover:text-blue-800">View all &rarr;</a>
+            <a href="{% url 'transport:fuel:list' %}" class="text-sm text-green-600 hover:text-green-800">View all &rarr;</a>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -331,7 +331,7 @@
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3 text-sm text-gray-600">{{ entry.date|date:"d M Y" }}</td>
                         <td class="px-4 py-3 text-sm font-medium">
-                            <a href="{% url 'transport:fuel:detail' entry.pk %}" class="text-blue-600 hover:text-blue-800">{{ entry.trip.order_number }}</a>
+                            <a href="{% url 'transport:fuel:detail' entry.pk %}" class="text-green-600 hover:text-green-800">{{ entry.trip.order_number }}</a>
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-600">{% if entry.station %}{{ entry.station.name }}{% else %}{{ entry.fuel_station }}{% endif %}</td>
                         <td class="px-4 py-3 text-sm text-gray-900 text-right">{{ entry.liters|floatformat:1 }} L</td>
@@ -355,8 +355,8 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const colors = {
-        blue: 'rgba(59, 130, 246, 0.8)',
-        blueBg: 'rgba(59, 130, 246, 0.1)',
+        green: 'rgba(34, 197, 94, 0.8)',
+        greenBg: 'rgba(34, 197, 94, 0.1)',
         green: 'rgba(16, 185, 129, 0.8)',
         greenBg: 'rgba(16, 185, 129, 0.1)',
         amber: 'rgba(245, 158, 11, 0.8)',
@@ -386,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         label: 'Cost',
                         data: {{ monthly_cost|safe }},
-                        backgroundColor: colors.blueBg,
+                        backgroundColor: colors.greenBg,
                         borderColor: colors.blue,
                         borderWidth: 2,
                         type: 'line',

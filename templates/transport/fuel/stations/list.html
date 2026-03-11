@@ -13,7 +13,7 @@
                 <h1 class="text-3xl font-bold text-gray-900">Fuel Stations</h1>
                 <p class="mt-1 text-sm text-gray-600">Manage partner fuel stations</p>
             </div>
-            <a href="{% url 'transport:fuel:station-create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition">
+            <a href="{% url 'transport:fuel:station-create' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 transition">
                 <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
@@ -26,8 +26,8 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="bg-white shadow rounded-lg p-5">
             <div class="flex items-center">
-                <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 </div>
                 <div class="ml-4">
                     <p class="text-sm text-gray-500">Total Stations</p>
@@ -64,10 +64,10 @@
         <form method="get" class="p-4 flex flex-col sm:flex-row gap-4">
             <div class="flex-1">
                 <input type="text" name="search" value="{{ search_query }}" placeholder="Search by name or location..."
-                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    class="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 text-sm">
             </div>
             <div>
-                <select name="status" class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm">
+                <select name="status" class="border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 text-sm">
                     <option value="">All Statuses</option>
                     <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option>
                     <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>Inactive</option>
@@ -102,7 +102,7 @@
                 {% for station in stations %}
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <a href="{% url 'transport:fuel:station-detail' station.pk %}" class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                        <a href="{% url 'transport:fuel:station-detail' station.pk %}" class="text-sm font-medium text-green-600 hover:text-green-800">
                             {{ station.name }}
                         </a>
                     </td>
@@ -121,7 +121,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">{{ station.entry_count|default:0 }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">{{ station.total_cost|default:0|currency }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                        <a href="{% url 'transport:fuel:station-edit' station.pk %}" class="text-blue-600 hover:text-blue-800 mr-3">Edit</a>
+                        <a href="{% url 'transport:fuel:station-edit' station.pk %}" class="text-green-600 hover:text-green-800 mr-3">Edit</a>
                         <a href="{% url 'transport:fuel:station-detail' station.pk %}" class="text-gray-600 hover:text-gray-800">View</a>
                     </td>
                 </tr>
@@ -152,7 +152,7 @@
             <h3 class="mt-2 text-sm font-medium text-gray-900">No fuel stations</h3>
             <p class="mt-1 text-sm text-gray-500">Get started by adding a partner fuel station.</p>
             <div class="mt-6">
-                <a href="{% url 'transport:fuel:station-create' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-sm font-medium rounded-md text-white hover:bg-blue-700">
+                <a href="{% url 'transport:fuel:station-create' %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-sm font-medium rounded-md text-white hover:bg-green-700">
                     <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Add Fuel Station
                 </a>
