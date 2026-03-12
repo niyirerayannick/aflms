@@ -1,6 +1,7 @@
 # Trip Module Views
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from accounts.decorators import driver_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib import messages
@@ -24,8 +25,16 @@ class StaffRequiredMixin(UserPassesTestMixin):
         ]
 
 
+class StaffOrDriverRequiredMixin(UserPassesTestMixin):
+    """Allow staff and drivers."""
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role in [
+            'superadmin', 'admin', 'manager', 'driver',
+        ]
+
+
 # ------------------------------------------------------------------ List
-class TripListView(StaffRequiredMixin, ListView):
+class TripListView(StaffOrDriverRequiredMixin, ListView):
     model = Trip
     template_name = 'transport/trips/list.html'
     context_object_name = 'trips'
@@ -68,6 +77,11 @@ class TripListView(StaffRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         all_trips = Trip.objects.all()
+        if self.request.user.role == 'driver':
+            all_trips = all_trips.filter(driver__user=self.request.user)
+        elif self.request.user.role == 'client':
+            all_trips = all_trips.filter(customer__user=self.request.user)
+
         ctx['total_trips'] = all_trips.count()
         ctx['draft_trips'] = all_trips.filter(status=Trip.TripStatus.DRAFT).count()
         ctx['active_trips'] = all_trips.filter(
@@ -84,15 +98,26 @@ class TripListView(StaffRequiredMixin, ListView):
 
 
 # ------------------------------------------------------------------ Detail
-class TripDetailView(StaffRequiredMixin, DetailView):
+class TripDetailView(StaffOrDriverRequiredMixin, DetailView):
     model = Trip
     template_name = 'transport/trips/detail.html'
     context_object_name = 'trip'
 
+    def get_template_names(self):
+        if self.request.user.role == 'driver':
+            return ['transport/driver/trip_detail.html']
+        return [self.template_name]
+
     def get_queryset(self):
-        return Trip.objects.select_related(
+        qs = Trip.objects.select_related(
             'vehicle', 'driver', 'customer', 'route', 'commodity_type',
         )
+        user = self.request.user
+        if user.role == 'driver':
+            qs = qs.filter(driver__user=user)
+        elif user.role == 'client':
+            qs = qs.filter(customer__user=user)
+        return qs
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -105,6 +130,9 @@ class TripDetailView(StaffRequiredMixin, DetailView):
         ctx['can_deliver'] = trip.status == Trip.TripStatus.IN_TRANSIT
         ctx['can_close'] = trip.status == Trip.TripStatus.DELIVERED
         ctx['can_edit'] = trip.status in (Trip.TripStatus.DRAFT, Trip.TripStatus.APPROVED)
+        if self.request.user.role == 'driver':
+            ctx['initial_tab'] = 'trips'
+            ctx['driver_spa'] = False
         return ctx
 
 
@@ -195,4 +223,64 @@ def update_trip_status(request, trip_id):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'success': True, 'message': success_msg})
     messages.success(request, success_msg)
+    return redirect('transport:trips:detail', pk=trip.pk)
+
+
+@driver_required
+@require_POST
+def accept_trip(request, trip_id):
+    """Driver accepts an assigned trip and moves it to IN_TRANSIT."""
+    trip = get_object_or_404(Trip, pk=trip_id, driver__user=request.user)
+    if trip.status != Trip.TripStatus.ASSIGNED:
+        messages.error(request, f'Only assigned trips can be accepted. Current status: {trip.get_status_display()}.')
+        return redirect('transport:trips:detail', pk=trip.pk)
+
+    trip.status = Trip.TripStatus.IN_TRANSIT
+    trip.save(update_fields=['status', 'updated_at'])
+    messages.success(request, f'Trip {trip.order_number} accepted and started.')
+    return redirect('transport:trips:detail', pk=trip.pk)
+
+
+@driver_required
+@require_POST
+def reject_trip(request, trip_id):
+    """Driver rejects an assigned trip and returns it to APPROVED."""
+    trip = get_object_or_404(Trip, pk=trip_id, driver__user=request.user)
+    if trip.status != Trip.TripStatus.ASSIGNED:
+        messages.error(request, f'Only assigned trips can be rejected. Current status: {trip.get_status_display()}.')
+        return redirect('transport:trips:detail', pk=trip.pk)
+
+    trip.status = Trip.TripStatus.APPROVED
+    trip.save(update_fields=['status', 'updated_at'])
+    messages.success(request, f'Trip {trip.order_number} rejected and returned for reassignment.')
+    return redirect('transport:trips:detail', pk=trip.pk)
+
+
+@driver_required
+@require_POST
+def start_trip(request, trip_id):
+    """Driver starts an assigned trip."""
+    trip = get_object_or_404(Trip, pk=trip_id, driver__user=request.user)
+    if trip.status != Trip.TripStatus.ASSIGNED:
+        messages.error(request, f'Only assigned trips can be started. Current status: {trip.get_status_display()}.')
+        return redirect('transport:trips:detail', pk=trip.pk)
+
+    trip.status = Trip.TripStatus.IN_TRANSIT
+    trip.save(update_fields=['status', 'updated_at'])
+    messages.success(request, f'Trip {trip.order_number} is now in transit.')
+    return redirect('transport:trips:detail', pk=trip.pk)
+
+
+@driver_required
+@require_POST
+def complete_trip(request, trip_id):
+    """Driver marks an in-transit trip as delivered."""
+    trip = get_object_or_404(Trip, pk=trip_id, driver__user=request.user)
+    if trip.status != Trip.TripStatus.IN_TRANSIT:
+        messages.error(request, f'Only in-transit trips can be completed. Current status: {trip.get_status_display()}.')
+        return redirect('transport:trips:detail', pk=trip.pk)
+
+    trip.status = Trip.TripStatus.DELIVERED
+    trip.save(update_fields=['status', 'updated_at'])
+    messages.success(request, f'Trip {trip.order_number} marked as delivered.')
     return redirect('transport:trips:detail', pk=trip.pk)

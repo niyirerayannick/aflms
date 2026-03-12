@@ -1,0 +1,49 @@
+<section data-section="profile" class="space-y-4">
+    <article class="rounded-2xl bg-white p-4 shadow-sm border border-slate-200">
+        <div class="flex items-center gap-3">
+            <div class="h-12 w-12 rounded-full bg-cyan-100 text-cyan-700 flex items-center justify-center font-semibold">
+                {{ request.user.full_name|slice:":1"|upper }}
+            </div>
+            <div>
+                <h2 class="text-lg font-semibold">{{ request.user.full_name }}</h2>
+                <p class="text-sm text-slate-600">{{ request.user.email }}</p>
+            </div>
+        </div>
+    </article>
+
+    <article class="rounded-2xl bg-white p-4 shadow-sm border border-slate-200">
+        <h3 class="font-semibold mb-3">Driver Information</h3>
+        <dl class="space-y-3 text-sm">
+            <div class="flex justify-between gap-3">
+                <dt class="text-slate-500">Phone</dt>
+                <dd class="font-medium text-slate-800">{{ driver.phone }}</dd>
+            </div>
+            <div class="flex justify-between gap-3">
+                <dt class="text-slate-500">License Number</dt>
+                <dd class="font-medium text-slate-800">{{ driver.license_number }}</dd>
+            </div>
+            <div class="flex justify-between gap-3">
+                <dt class="text-slate-500">License Expiry</dt>
+                <dd class="font-medium text-slate-800">{{ driver.license_expiry|date:"M d, Y" }}</dd>
+            </div>
+            <div class="flex justify-between gap-3">
+                <dt class="text-slate-500">Status</dt>
+                <dd class="font-medium text-slate-800">{{ driver.get_status_display }}</dd>
+            </div>
+        </dl>
+    </article>
+
+    <article class="rounded-2xl bg-white p-4 shadow-sm border border-slate-200">
+        <h3 class="font-semibold mb-3">Quick Summary</h3>
+        <div class="grid grid-cols-2 gap-3">
+            <div class="rounded-xl bg-slate-50 p-3">
+                <p class="text-xs text-slate-500">Assigned Trips</p>
+                <p class="text-xl font-semibold text-cyan-700">{{ assigned_count }}</p>
+            </div>
+            <div class="rounded-xl bg-slate-50 p-3">
+                <p class="text-xs text-slate-500">Fuel Requests</p>
+                <p class="text-xl font-semibold text-amber-700">{{ fuel_request_count }}</p>
+            </div>
+        </div>
+    </article>
+</section>

@@ -9,7 +9,7 @@ from django.utils import timezone
 from transport.customers.models import Customer
 from transport.drivers.models import Driver
 from transport.finance.models import Expense, Payment
-from transport.fuel.models import FuelEntry, FuelStation
+from transport.fuel.models import FuelRequest, FuelStation
 from transport.maintenance.models import MaintenanceRecord
 from transport.routes.models import Route
 from transport.trips.models import Trip
@@ -70,9 +70,9 @@ def full_dashboard_context():
     total_vehicles = Vehicle.objects.count()
     total_drivers = Driver.objects.count()
     total_customers = Customer.objects.count()
-    total_routes = Route.objects.filter(is_active=True).count()
+    total_routes = Route.objects.count()
     total_trips = Trip.objects.count()
-    total_fuel_stations = FuelStation.objects.filter(is_active=True).count()
+    total_fuel_stations = FuelStation.objects.count()
 
     # ── 3. Fleet breakdown ────────────────────────────────────────────
     fleet_by_status = dict(
@@ -132,16 +132,7 @@ def full_dashboard_context():
     trend_count = json.dumps([m["count"] for m in monthly_trend])
 
     # ── 8. Fuel trend (12 months) ─────────────────────────────────────
-    fuel_monthly = list(
-        FuelEntry.objects.filter(date__gte=twelve_months_ago)
-        .annotate(month=TruncMonth("date"))
-        .values("month")
-        .annotate(liters=Sum("liters"), cost=Sum("total_cost"))
-        .order_by("month")
-    )
-    fuel_labels = json.dumps([m["month"].strftime("%b %Y") for m in fuel_monthly])
-    fuel_liters = json.dumps([float(m["liters"] or 0) for m in fuel_monthly])
-    fuel_cost_data = json.dumps([float(m["cost"] or 0) for m in fuel_monthly])
+
 
     # ── 9. Trip status pie chart ──────────────────────────────────────
     status_labels = json.dumps([s["status"] for s in trip_by_status])
@@ -165,12 +156,7 @@ def full_dashboard_context():
         .order_by("-trips")[:5]
     )
 
-    # ── 13. Top fuel stations ─────────────────────────────────────────
-    top_fuel_stations = list(
-        FuelEntry.objects.values("station__name")
-        .annotate(cost=Sum("total_cost"), liters=Sum("liters"))
-        .order_by("-cost")[:5]
-    )
+
 
     # ── 14. Alerts ────────────────────────────────────────────────────
     alerts = []
@@ -204,7 +190,7 @@ def full_dashboard_context():
     # ── 15. Recent activity ───────────────────────────────────────────
     recent_trips = Trip.objects.select_related("customer", "vehicle", "driver", "route").order_by("-created_at")[:10]
     recent_maintenance = MaintenanceRecord.objects.select_related("vehicle").order_by("-service_date")[:5]
-    recent_fuel = FuelEntry.objects.select_related("trip", "station").order_by("-date")[:5]
+    recent_fuel = FuelRequest.objects.select_related("trip", "station").order_by("-created_at")[:5]
     recent_payments = Payment.objects.select_related("trip").order_by("-payment_date")[:5]
 
     # ── 16. Driver Leaderboard ────────────────────────────────────────
@@ -255,9 +241,7 @@ def full_dashboard_context():
         "trend_profit": trend_profit,
         "trend_count": trend_count,
         # Charts – Fuel trend
-        "fuel_labels": fuel_labels,
-        "fuel_liters": fuel_liters,
-        "fuel_cost_data": fuel_cost_data,
+
         # Charts – Trip status pie
         "status_labels": status_labels,
         "status_counts": status_counts,
@@ -267,7 +251,9 @@ def full_dashboard_context():
         # Rankings
         "top_customers": top_customers,
         "top_routes": top_routes,
-        "top_fuel_stations": top_fuel_stations,
+
+        # Rankings
+
         # Alerts
         "alerts": alerts,
         "alert_count": len(alerts),

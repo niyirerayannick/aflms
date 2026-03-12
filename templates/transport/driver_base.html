@@ -1,0 +1,145 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Driver Workspace | TMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,500,0,0" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900" style="font-family: 'Outfit', sans-serif;">
+    <div class="min-h-screen pb-24 relative overflow-hidden">
+        <div class="pointer-events-none absolute -top-20 -right-16 h-64 w-64 rounded-full bg-cyan-300/20 blur-3xl"></div>
+        <div class="pointer-events-none absolute top-24 -left-16 h-64 w-64 rounded-full bg-blue-300/20 blur-3xl"></div>
+
+        <header class="sticky top-0 z-60 bg-white border-b border-slate-200 border-t-4 border-emerald-500">
+            <div class="h-14 px-3 sm:px-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                      <h1 class="text-lg font-semibold text-slate-800">
+                        {% if initial_tab == 'trips' %}Trips{% elif initial_tab == 'fuel' %}Fuel{% elif initial_tab == 'profile' %}Profile{% else %}Dashboard{% endif %}
+                    </h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" class="h-8 w-8 rounded-full flex items-center justify-center hover:bg-slate-100">
+                        <span class="material-symbols-outlined text-[19px] text-slate-600">dark_mode</span>
+                    </button>
+                    <button type="button" class="h-8 w-8 rounded-full flex items-center justify-center hover:bg-slate-100">
+                        <span class="material-symbols-outlined text-[19px] text-slate-600">notifications</span>
+                    </button>
+                    <a href="/transport/driver/profile/" class="h-8 w-8 rounded-full bg-emerald-300 text-emerald-900 flex items-center justify-center text-xs font-semibold">
+                        {{ request.user.full_name|default:request.user.email|slice:":1"|upper }}
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <section class="px-3 mt-3">
+            <div class="rounded-3xl bg-white shadow-md border border-slate-200 min-h-[58vh] overflow-hidden">
+                {% if driver_spa %}
+                    <main
+                        id="driver-content"
+                        class="px-3 pt-4 pb-8"
+                        hx-get="{{ initial_partial_url }}"
+                        hx-trigger="load"
+                        hx-swap="innerHTML transition:true"
+                    ></main>
+                {% else %}
+                    <main id="driver-content" class="px-3 pt-4 pb-8">
+                        {% block driver_content %}{% endblock %}
+                    </main>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur">
+        <div class="grid grid-cols-5 px-2 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+            <a
+                href="{% url 'transport:driver_dashboard' %}"
+                data-tab="dashboard"
+                hx-get="{% url 'transport:driver_dashboard_partial' %}"
+                hx-target="#driver-content"
+                hx-swap="innerHTML transition:true"
+                hx-push-url="{% url 'transport:driver_dashboard' %}"
+                class="driver-tab flex flex-col items-center gap-1 py-1.5 text-[11px] font-medium {% if initial_tab == 'dashboard' %}text-sky-700{% else %}text-slate-400{% endif %}"
+            >
+                <span class="material-symbols-outlined text-[20px] leading-none">home</span>
+                <span>Home</span>
+            </a>
+            <a
+                href="{% url 'transport:driver_trips' %}"
+                data-tab="trips"
+                hx-get="{% url 'transport:driver_trips_partial' %}"
+                hx-target="#driver-content"
+                hx-swap="innerHTML transition:true"
+                hx-push-url="{% url 'transport:driver_trips' %}"
+                class="driver-tab flex flex-col items-center gap-1 py-1.5 text-[11px] font-medium {% if initial_tab == 'trips' %}text-sky-700{% else %}text-slate-400{% endif %}"
+            >
+                <span class="material-symbols-outlined text-[20px] leading-none">receipt_long</span>
+                <span>Trips</span>
+            </a>
+            <a
+                href="{% url 'transport:fuel:request' %}"
+                class="flex items-center justify-center"
+            >
+                <span class="h-11 w-11 rounded-full bg-[#173253] text-white flex items-center justify-center shadow-lg ring-4 ring-white">
+                    <span class="material-symbols-outlined text-[20px] leading-none">edit_square</span>
+                </span>
+            </a>
+            <a
+                href="{% url 'transport:driver_fuel' %}"
+                data-tab="fuel"
+                hx-get="{% url 'transport:driver_fuel_partial' %}"
+                hx-target="#driver-content"
+                hx-swap="innerHTML transition:true"
+                hx-push-url="{% url 'transport:driver_fuel' %}"
+                class="driver-tab flex flex-col items-center gap-1 py-1.5 text-[11px] font-medium {% if initial_tab == 'fuel' %}text-sky-700{% else %}text-slate-400{% endif %}"
+            >
+                <span class="material-symbols-outlined text-[20px] leading-none">local_gas_station</span>
+                <span>Fuel</span>
+            </a>
+            <a
+                href="{% url 'transport:driver_profile' %}"
+                data-tab="profile"
+                hx-get="{% url 'transport:driver_profile_partial' %}"
+                hx-target="#driver-content"
+                hx-swap="innerHTML transition:true"
+                hx-push-url="{% url 'transport:driver_profile' %}"
+                class="driver-tab flex flex-col items-center gap-1 py-1.5 text-[11px] font-medium {% if initial_tab == 'profile' %}text-sky-700{% else %}text-slate-400{% endif %}"
+            >
+                <span class="material-symbols-outlined text-[20px] leading-none">person</span>
+                <span>Me</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        function setActiveDriverTab(tabName) {
+            document.querySelectorAll(".driver-tab").forEach((tab) => {
+                const isActive = tab.dataset.tab === tabName;
+                tab.classList.toggle("text-sky-700", isActive);
+                tab.classList.toggle("text-slate-400", !isActive);
+            });
+        }
+
+        document.addEventListener("click", function (event) {
+            const clicked = event.target.closest(".driver-tab");
+            if (clicked) setActiveDriverTab(clicked.dataset.tab);
+        });
+
+        document.body.addEventListener("htmx:afterSwap", function (event) {
+            if (event.target.id !== "driver-content") return;
+            const section = event.target.firstElementChild?.dataset?.section;
+            if (section) setActiveDriverTab(section);
+        });
+    </script>
+</body>
+</html>

@@ -4,13 +4,147 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib import messages
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils.decorators import method_decorator
-from .models import Vehicle, Driver, Customer, Route, Trip
-from .forms import VehicleForm, DriverForm, CustomerForm, RouteForm
+from accounts.decorators import driver_required
+from transport.trips.models import Trip
+from transport.vehicles.models import Vehicle
+from transport.drivers.models import Driver
+from transport.customers.models import Customer
+from transport.routes.models import Route
+from transport.fuel.models import FuelRequest
+from transport.vehicles.forms import VehicleForm
+from transport.drivers.forms import DriverForm
+from transport.customers.forms import CustomerForm
+from transport.routes.forms import RouteForm
+
+def _driver_section_context(user):
+    driver = get_object_or_404(Driver, user=user)
+    assigned_trips = (
+        Trip.objects.filter(driver=driver, status=Trip.TripStatus.ASSIGNED)
+        .select_related("route", "commodity_type")
+        .order_by("-created_at")
+    )
+    active_trip = (
+        Trip.objects.filter(driver=driver, status=Trip.TripStatus.IN_TRANSIT)
+        .select_related("route", "commodity_type")
+        .first()
+    )
+    completed_trips = (
+        Trip.objects.filter(driver=driver, status=Trip.TripStatus.DELIVERED)
+        .select_related("route")
+        .order_by("-updated_at")[:5]
+    )
+    driver_trips = (
+        Trip.objects.filter(driver=driver)
+        .select_related("route", "commodity_type")
+        .order_by("-created_at")[:20]
+    )
+    fuel_requests = (
+        FuelRequest.objects.filter(driver=user)
+        .select_related("trip", "station")
+        .order_by("-created_at")[:10]
+    )
+
+    return {
+        "driver": driver,
+        "assigned_trips": assigned_trips,
+        "active_trip": active_trip,
+        "completed_trips": completed_trips,
+        "driver_trips": driver_trips,
+        "fuel_requests": fuel_requests,
+        "assigned_count": assigned_trips.count(),
+        "active_count": 1 if active_trip else 0,
+        "completed_count": Trip.objects.filter(driver=driver, status=Trip.TripStatus.DELIVERED).count(),
+        "fuel_request_count": FuelRequest.objects.filter(driver=user).count(),
+    }
+
+
+@driver_required
+def driver_shell(request, tab="dashboard"):
+    tab_to_partial = {
+        "dashboard": reverse("transport:driver_dashboard_partial"),
+        "trips": reverse("transport:driver_trips_partial"),
+        "fuel": reverse("transport:driver_fuel_partial"),
+        "profile": reverse("transport:driver_profile_partial"),
+    }
+    if tab not in tab_to_partial:
+        tab = "dashboard"
+
+    return render(
+        request,
+        "transport/driver_base.html",
+        {
+            "driver_spa": True,
+            "initial_tab": tab,
+            "initial_partial_url": tab_to_partial[tab],
+        },
+    )
+
+
+@driver_required
+def driver_dashboard(request):
+    return driver_shell(request, tab="dashboard")
+
+
+@driver_required
+def driver_trips(request):
+    return driver_shell(request, tab="trips")
+
+
+@driver_required
+def driver_fuel(request):
+    return driver_shell(request, tab="fuel")
+
+
+@driver_required
+def driver_profile(request):
+    return driver_shell(request, tab="profile")
+
+
+@driver_required
+def driver_dashboard_partial(request):
+    context = _driver_section_context(request.user)
+    return render(request, "transport/driver/partials/dashboard.html", context)
+
+
+@driver_required
+def driver_trips_partial(request):
+    context = _driver_section_context(request.user)
+    return render(request, "transport/driver/partials/trips.html", context)
+
+
+@driver_required
+def driver_fuel_partial(request):
+    context = _driver_section_context(request.user)
+    return render(request, "transport/driver/partials/fuel.html", context)
+
+
+@driver_required
+def driver_profile_partial(request):
+    context = _driver_section_context(request.user)
+    return render(request, "transport/driver/partials/profile.html", context)
+
+
+@login_required
+def driver_dashboard_legacy(request):
+    driver = get_object_or_404(Driver, user=request.user)
+    
+    assigned_trips = Trip.objects.filter(driver=driver, status=Trip.TripStatus.ASSIGNED).order_by('-created_at')
+    active_trip = Trip.objects.filter(driver=driver, status=Trip.TripStatus.IN_TRANSIT).first()
+    completed_trips = Trip.objects.filter(driver=driver, status=Trip.TripStatus.DELIVERED).order_by('-updated_at')[:5]
+    fuel_requests = FuelRequest.objects.filter(driver=request.user).order_by('-created_at')[:5]
+
+    context = {
+        'assigned_trips': assigned_trips,
+        'active_trip': active_trip,
+        'completed_trips': completed_trips,
+        'fuel_requests': fuel_requests,
+    }
+    return render(request, 'transport/driver_dashboard.html', context)
 
 class StaffRequiredMixin(UserPassesTestMixin):
     """Mixin to require staff access level"""
