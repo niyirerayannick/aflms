@@ -78,7 +78,7 @@ class DashboardView(LoginRequiredMixin, View):
         if role in ['superadmin', 'admin', 'manager']:
             return redirect('/transport/analytics/dashboard/')
         elif role == 'driver':
-            return redirect('/transport/analytics/driver-dashboard/')
+            return redirect('/transport/driver/dashboard/')
         elif role == 'client':
             return redirect('/transport/analytics/client-dashboard/')
         else:
@@ -102,7 +102,7 @@ class ManagerDashboardView(ManagerMixin, View):
 
 class DriverDashboardView(DriverMixin, View):
     def get(self, request, *args, **kwargs):
-        return redirect('/transport/analytics/driver-dashboard/')
+        return redirect('/transport/driver/dashboard/')
 
 
 class ClientDashboardView(ClientMixin, View):
