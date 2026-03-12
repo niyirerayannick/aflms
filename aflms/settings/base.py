@@ -5,8 +5,21 @@ from decouple import Csv, config
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+
+def _env_bool(name, default=False):
+    value = config(name, default=str(default))
+    if isinstance(value, bool):
+        return value
+    normalized = str(value).strip().lower()
+    if normalized in {"1", "true", "t", "yes", "y", "on", "debug", "dev"}:
+        return True
+    if normalized in {"0", "false", "f", "no", "n", "off", "release", "prod", "production"}:
+        return False
+    return default
+
+
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-change-this-in-production")
-DEBUG = config("DEBUG", default=False, cast=bool)
+DEBUG = _env_bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="127.0.0.1,localhost", cast=Csv())
 CSRF_TRUSTED_ORIGINS = config(

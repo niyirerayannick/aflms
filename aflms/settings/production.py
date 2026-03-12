@@ -11,7 +11,18 @@ from .base import *  # noqa: F403,F401
 
 _logger = logging.getLogger("aflms.settings")
 
-DEBUG = config("DEBUG", default=False, cast=bool)
+def _env_bool(value, default=False):
+    if isinstance(value, bool):
+        return value
+    normalized = str(value).strip().lower()
+    if normalized in {"1", "true", "t", "yes", "y", "on", "debug", "dev"}:
+        return True
+    if normalized in {"0", "false", "f", "no", "n", "off", "release", "prod", "production"}:
+        return False
+    return default
+
+
+DEBUG = _env_bool(config("DEBUG", default=False), default=False)
 
 # ── SECRET_KEY ────────────────────────────────────────────────────
 # Auto-generate if missing so the container can always boot.

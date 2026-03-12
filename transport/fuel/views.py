@@ -13,6 +13,18 @@ from .forms import FuelDocumentForm, FuelRequestForm
 from .models import FuelRequest
 
 
+def _sync_trip_fuel_cost_from_requests(trip):
+    approved_total = (
+        FuelRequest.objects.filter(trip=trip, is_approved=True)
+        .aggregate(total=Sum("amount"))
+        .get("total")
+        or 0
+    )
+    trip.fuel_cost = approved_total
+    # Use full save so Trip model recalculates dependent financial fields.
+    trip.save()
+
+
 class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return self.request.user.role in {"superadmin", "admin", "manager"}
@@ -100,6 +112,7 @@ def approve_fuel_request(request, pk):
     else:
         fuel_request.is_approved = True
         fuel_request.save(update_fields=["is_approved", "updated_at"])
+        _sync_trip_fuel_cost_from_requests(fuel_request.trip)
         messages.success(request, f"Fuel request #{fuel_request.pk} approved.")
 
     return redirect("transport:fuel:detail", pk=pk)

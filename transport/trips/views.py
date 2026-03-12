@@ -1,4 +1,6 @@
 # Trip Module Views
+from decimal import Decimal, InvalidOperation
+
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from accounts.decorators import driver_required
@@ -265,8 +267,22 @@ def start_trip(request, trip_id):
         messages.error(request, f'Only assigned trips can be started. Current status: {trip.get_status_display()}.')
         return redirect('transport:trips:detail', pk=trip.pk)
 
+    raw_km_start = (request.POST.get('km_start') or '').strip()
+    if not raw_km_start:
+        messages.error(request, 'Odometer Start is required to start a trip.')
+        return redirect('transport:trips:detail', pk=trip.pk)
+    try:
+        km_start = Decimal(raw_km_start)
+    except InvalidOperation:
+        messages.error(request, 'Odometer Start must be a valid number.')
+        return redirect('transport:trips:detail', pk=trip.pk)
+    if km_start <= 0:
+        messages.error(request, 'Odometer Start must be greater than 0.')
+        return redirect('transport:trips:detail', pk=trip.pk)
+
+    trip.km_start = km_start
     trip.status = Trip.TripStatus.IN_TRANSIT
-    trip.save(update_fields=['status', 'updated_at'])
+    trip.save()
     messages.success(request, f'Trip {trip.order_number} is now in transit.')
     return redirect('transport:trips:detail', pk=trip.pk)
 
@@ -280,7 +296,24 @@ def complete_trip(request, trip_id):
         messages.error(request, f'Only in-transit trips can be completed. Current status: {trip.get_status_display()}.')
         return redirect('transport:trips:detail', pk=trip.pk)
 
+    raw_km_end = (request.POST.get('km_end') or '').strip()
+    if not raw_km_end:
+        messages.error(request, 'Odometer End is required to complete a trip.')
+        return redirect('transport:trips:detail', pk=trip.pk)
+    try:
+        km_end = Decimal(raw_km_end)
+    except InvalidOperation:
+        messages.error(request, 'Odometer End must be a valid number.')
+        return redirect('transport:trips:detail', pk=trip.pk)
+    if km_end <= 0:
+        messages.error(request, 'Odometer End must be greater than 0.')
+        return redirect('transport:trips:detail', pk=trip.pk)
+    if trip.km_start and km_end < trip.km_start:
+        messages.error(request, 'Odometer End cannot be less than Odometer Start.')
+        return redirect('transport:trips:detail', pk=trip.pk)
+
+    trip.km_end = km_end
     trip.status = Trip.TripStatus.DELIVERED
-    trip.save(update_fields=['status', 'updated_at'])
+    trip.save()
     messages.success(request, f'Trip {trip.order_number} marked as delivered.')
     return redirect('transport:trips:detail', pk=trip.pk)

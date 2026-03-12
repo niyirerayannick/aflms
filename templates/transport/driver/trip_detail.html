@@ -38,6 +38,18 @@
                 <dd class="font-medium text-slate-800">{{ trip.route.distance_km|floatformat:1 }} km</dd>
             </div>
             <div class="flex justify-between gap-3">
+                <dt class="text-slate-500">Odometer Start</dt>
+                <dd class="font-medium text-slate-800">
+                    {% if trip.km_start > 0 %}{{ trip.km_start|floatformat:0 }} km{% else %}--{% endif %}
+                </dd>
+            </div>
+            <div class="flex justify-between gap-3">
+                <dt class="text-slate-500">Odometer End</dt>
+                <dd class="font-medium text-slate-800">
+                    {% if trip.km_end > 0 %}{{ trip.km_end|floatformat:0 }} km{% else %}--{% endif %}
+                </dd>
+            </div>
+            <div class="flex justify-between gap-3">
                 <dt class="text-slate-500">Fuel Cost</dt>
                 <dd class="font-medium text-slate-800">{{ trip.fuel_cost|currency }}</dd>
             </div>
@@ -54,16 +66,39 @@
         <div class="grid grid-cols-2 gap-2">
             <form method="post" action="{% url 'transport:trips:start' trip.pk %}">
                 {% csrf_token %}
+                <label for="km_start" class="mb-1 block text-xs font-medium text-slate-600">Odometer Start (km)</label>
+                <input
+                    id="km_start"
+                    name="km_start"
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    required
+                    class="mb-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200"
+                    placeholder="Enter current odometer"
+                >
                 <button type="submit" class="w-full rounded-xl bg-cyan-700 px-3 py-2.5 text-sm font-semibold text-white">Start Trip</button>
             </form>
             <form method="post" action="{% url 'transport:trips:reject' trip.pk %}">
                 {% csrf_token %}
+                <div class="mb-[42px]"></div>
                 <button type="submit" class="w-full rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white">Reject</button>
             </form>
         </div>
         {% elif trip.status == 'IN_TRANSIT' %}
         <form method="post" action="{% url 'transport:trips:complete' trip.pk %}">
             {% csrf_token %}
+            <label for="km_end" class="mb-1 block text-xs font-medium text-slate-600">Odometer End (km)</label>
+            <input
+                id="km_end"
+                name="km_end"
+                type="number"
+                min="1"
+                step="0.01"
+                required
+                class="mb-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200"
+                placeholder="Enter final odometer"
+            >
             <button type="submit" class="w-full rounded-xl bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white">Complete Trip</button>
         </form>
         {% else %}
