@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 from django.db.models import Sum
+from django.utils import timezone
 
 from transport.fuel.models import FuelRequest
 from transport.trips.models import Trip
@@ -22,10 +23,16 @@ class Command(BaseCommand):
             nargs="+",
             help="Optional list of Trip IDs to backfill.",
         )
+        parser.add_argument(
+            "--mark-posted",
+            action="store_true",
+            help="Mark approved FuelRequest rows as posted_to_trip after sync.",
+        )
 
     def handle(self, *args, **options):
         dry_run = options["dry_run"]
         trip_ids = options.get("trip_id")
+        mark_posted = options["mark_posted"]
 
         trips = Trip.objects.all().only("id", "order_number", "fuel_cost")
         if trip_ids:
@@ -62,10 +69,21 @@ class Command(BaseCommand):
             trip.fuel_cost = target_fuel_cost
             trip.save()
 
+            if mark_posted:
+                FuelRequest.objects.filter(
+                    trip=trip,
+                    is_approved=True,
+                ).update(
+                    posted_to_trip=True,
+                    posted_at=timezone.now(),
+                )
+
+        if mark_posted and not dry_run:
+            self.stdout.write("Approved FuelRequest rows marked as posted_to_trip.")
+
         mode = "DRY-RUN" if dry_run else "APPLIED"
         self.stdout.write(
             self.style.SUCCESS(
                 f"[{mode}] Scanned: {scanned}, Updated: {changed}"
             )
         )
-

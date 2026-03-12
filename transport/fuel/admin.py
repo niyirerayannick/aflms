@@ -11,7 +11,17 @@ class FuelStationAdmin(admin.ModelAdmin):
 
 @admin.register(FuelRequest)
 class FuelRequestAdmin(admin.ModelAdmin):
-    list_display = ("trip", "driver", "station", "amount", "is_approved", "created_at")
-    list_filter = ("is_approved", "station")
+    list_display = (
+        "trip",
+        "driver",
+        "station",
+        "amount",
+        "is_approved",
+        "posted_to_trip",
+        "approved_by",
+        "approved_at",
+        "created_at",
+    )
+    list_filter = ("is_approved", "posted_to_trip", "station")
     search_fields = ("trip__order_number", "driver__username", "station__name")
-    autocomplete_fields = ("trip", "driver", "station")
+    autocomplete_fields = ("trip", "driver", "station", "approved_by")

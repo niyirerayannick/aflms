@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, ListView, TemplateView
 
@@ -111,8 +112,21 @@ def approve_fuel_request(request, pk):
         messages.info(request, "Fuel request is already approved.")
     else:
         fuel_request.is_approved = True
-        fuel_request.save(update_fields=["is_approved", "updated_at"])
+        fuel_request.approved_by = request.user
+        fuel_request.approved_at = timezone.now()
         _sync_trip_fuel_cost_from_requests(fuel_request.trip)
+        fuel_request.posted_to_trip = True
+        fuel_request.posted_at = timezone.now()
+        fuel_request.save(
+            update_fields=[
+                "is_approved",
+                "approved_by",
+                "approved_at",
+                "posted_to_trip",
+                "posted_at",
+                "updated_at",
+            ]
+        )
         messages.success(request, f"Fuel request #{fuel_request.pk} approved.")
 
     return redirect("transport:fuel:detail", pk=pk)

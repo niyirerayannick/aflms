@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from transport.trips.models import Trip
 
+
 class FuelStation(models.Model):
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=255)
@@ -16,6 +17,16 @@ class FuelRequest(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     notes = models.TextField(blank=True)
     is_approved = models.BooleanField(default=False)
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_trip_fuel_requests",
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    posted_to_trip = models.BooleanField(default=False)
+    posted_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
