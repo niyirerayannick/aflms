@@ -1,14 +1,17 @@
 # Core Transport Module Views
+import json
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib import messages
 from django.urls import reverse, reverse_lazy
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils.decorators import method_decorator
+from django.templatetags.static import static
 from accounts.decorators import driver_required
 from transport.trips.models import Trip
 from transport.vehicles.models import Vehicle
@@ -127,6 +130,69 @@ def driver_fuel_partial(request):
 def driver_profile_partial(request):
     context = _driver_section_context(request.user)
     return render(request, "transport/driver/partials/profile.html", context)
+
+
+@driver_required
+def driver_assignment_state(request):
+    driver = get_object_or_404(Driver, user=request.user)
+    assigned_qs = Trip.objects.filter(driver=driver, status=Trip.TripStatus.ASSIGNED).order_by("-created_at")
+    latest_trip = assigned_qs.first()
+    return JsonResponse(
+        {
+            "assigned_count": assigned_qs.count(),
+            "latest_assigned_trip_id": latest_trip.pk if latest_trip else None,
+            "latest_assigned_order": latest_trip.order_number if latest_trip else "",
+        }
+    )
+
+
+def driver_manifest(request):
+    manifest = {
+        "name": "AFLMS Driver",
+        "short_name": "Driver",
+        "start_url": "/transport/driver/",
+        "scope": "/transport/",
+        "display": "standalone",
+        "orientation": "portrait",
+        "background_color": "#f1f5f9",
+        "theme_color": "#10b981",
+        "icons": [
+            {
+                "src": static("img/Afrilott.png"),
+                "sizes": "192x192",
+                "type": "image/png",
+            },
+            {
+                "src": static("img/Afrilott.png"),
+                "sizes": "512x512",
+                "type": "image/png",
+            },
+        ],
+    }
+    return HttpResponse(
+        json.dumps(manifest),
+        content_type="application/manifest+json",
+    )
+
+
+def driver_service_worker(_request):
+    script = """
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request))
+  );
+});
+"""
+    return HttpResponse(script, content_type="application/javascript")
 
 
 @login_required
